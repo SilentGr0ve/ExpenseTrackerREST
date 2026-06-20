@@ -1,0 +1,18 @@
+services:
+  tracker_postgres:
+    image: postgres:18.4-bookworm
+    container_name: expense_tracker-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ${PROJECT_ROOT}/out/pgdata:/var/lib/postgresql
+
+  port-forwarder:
+    image: alpine/socat:1.8.1.1
+    container_name: expense_tracker-port-forwarder
+    command: tcp-listen:5432,fork,reuseaddr tcp-connect:tracker_postgres:5432
+    ports:
+      - "127.0.0.1:5432:5432"
