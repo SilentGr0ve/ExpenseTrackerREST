@@ -1,4 +1,4 @@
-include .env
+-include .env
 export
 
 export PROJECT_ROOT=$(shell pwd)
@@ -15,4 +15,20 @@ env-port-forward:
 env-port-close:
 	@docker compose down port-forwarder
 
-migrate-
+migrate-up:
+	@docker run --rm \
+	--network host \
+	-v $(PROJECT_ROOT)/migrations:/migrations \
+	migrate/migrate:v4.19.1 \
+	-path=/migrations \
+	-database="postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@localhost:5432/$(POSTGRES_DB)?sslmode=disable" \
+	up
+
+migrate-down:
+	@docker run --rm \
+	--netword host \
+	-v $(POSTGRES_ROOT)/migrations:migrations \
+	migrate/migrate:v4.19.1 \
+	-path=/migrations \
+	-database="postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@localhost:5432/$(POSTGRES_DB)?sslmode=disable" \
+	down 1

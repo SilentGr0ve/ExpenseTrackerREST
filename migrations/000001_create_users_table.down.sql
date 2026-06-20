@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS tracker.users;
+DROP SCHEMA IF EXISTS tracker;
