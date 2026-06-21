@@ -32,3 +32,8 @@ migrate-down:
 	-path=/migrations \
 	-database="postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@localhost:5432/$(POSTGRES_DB)?sslmode=disable" \
 	down 1
+
+tracker-run:
+	@export LOGGER_FOLDER=${PROJECT_ROOT}/out/logs && \
+	go mod tidy && \
+	go run ${PROJECT_ROOT}/cmd/api/main.go

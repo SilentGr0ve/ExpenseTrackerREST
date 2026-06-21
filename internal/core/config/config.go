@@ -11,6 +11,7 @@ import (
 type Config struct {
 	Server   ServerConfig
 	Database PostgresConfig
+	Logger   LoggerConfig
 }
 
 type PostgresConfig struct {
@@ -29,6 +30,11 @@ type ServerConfig struct {
 	Environment string `envconfig:"ENV" 	default:"development"`
 }
 
+type LoggerConfig struct {
+	Level  string `envconfig:"LEVEL" 	default:"DEBUG"`
+	Folder string `envconfig:"FOLDER" 	default:"./out/logs"`
+}
+
 func newConfig() (Config, error) {
 	var config Config
 
@@ -40,15 +46,19 @@ func newConfig() (Config, error) {
 		return Config{}, fmt.Errorf("process server config: %w", err)
 	}
 
+	if err := envconfig.Process("LOGGER", &config.Logger); err != nil {
+		return Config{}, fmt.Errorf("process logger config: %w", err)
+	}
+
 	return config, nil
 }
 
-func MustLoad() Config {
+func MustLoad() *Config {
 	config, err := newConfig()
 
 	if err != nil {
 		log.Fatalf("config: failed to load: %v", err)
 	}
 
-	return config
+	return &config
 }
