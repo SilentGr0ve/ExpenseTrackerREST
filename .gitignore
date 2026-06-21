@@ -2,5 +2,6 @@
 *.env
 .DS_STORE
 out
+.mimocode
 
 
