@@ -21,16 +21,16 @@ migrate-up:
 	-v $(PROJECT_ROOT)/migrations:/migrations \
 	migrate/migrate:v4.19.1 \
 	-path=/migrations \
-	-database="postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@localhost:5432/$(POSTGRES_DB)?sslmode=disable" \
+	-database="postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@localhost:5432/$(POSTGRES_DB)?sslmode=$(POSTGRES_SSLMODE)" \
 	up
 
 migrate-down:
 	@docker run --rm \
-	--netword host \
+	--network host \
 	-v $(POSTGRES_ROOT)/migrations:migrations \
 	migrate/migrate:v4.19.1 \
 	-path=/migrations \
-	-database="postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@localhost:5432/$(POSTGRES_DB)?sslmode=disable" \
+	-database="postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@localhost:5432/$(POSTGRES_DB)?sslmode=$(POSTGRES_SSLMODE)" \
 	down 1
 
 tracker-run:
