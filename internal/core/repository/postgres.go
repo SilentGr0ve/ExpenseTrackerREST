@@ -9,6 +9,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+var _ Pool = (*PostgresPool)(nil)
+
 type PostgresPool struct {
 	*pgxpool.Pool
 	opTimeout time.Duration
@@ -29,6 +31,8 @@ func NewPool(ctx context.Context, config config.PostgresConfig) (*PostgresPool, 
 	if err != nil {
 		return nil, fmt.Errorf("parse pgx config: %w", err)
 	}
+
+	pgxconfig.MaxConns = config.MaxConns
 
 	pool, err := pgxpool.NewWithConfig(ctx, pgxconfig)
 	if err != nil {
