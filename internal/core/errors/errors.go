@@ -1,4 +1,4 @@
-package errors
+package core_errors
 
 import "errors"
 
