@@ -12,6 +12,7 @@ type Config struct {
 	Server   ServerConfig
 	Database PostgresConfig
 	Logger   LoggerConfig
+	JWT      JWTConfig
 }
 
 type PostgresConfig struct {
@@ -35,6 +36,11 @@ type LoggerConfig struct {
 	Folder string `envconfig:"FOLDER" 	default:"./out/logs"`
 }
 
+type JWTConfig struct {
+	Secret       string        `envconfig:"SECRET" required:"true"`
+	AccessExpiry time.Duration `envconfig:"ACCESS_EXPIRY" default:"15m"`
+}
+
 func newConfig() (Config, error) {
 	var config Config
 
@@ -48,6 +54,10 @@ func newConfig() (Config, error) {
 
 	if err := envconfig.Process("LOGGER", &config.Logger); err != nil {
 		return Config{}, fmt.Errorf("process logger config: %w", err)
+	}
+
+	if err := envconfig.Process("JWT", &config.JWT); err != nil {
+		return Config{}, fmt.Errorf("process JWT config: %w", err)
 	}
 
 	return config, nil
