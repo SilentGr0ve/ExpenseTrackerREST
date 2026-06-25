@@ -4,9 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/domain"
 	core_errors "github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/errors"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) (domain.User, error) {
@@ -15,11 +19,13 @@ func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) 
 		return domain.User{}, fmt.Errorf("hashing password: %w", err)
 	}
 
-	userDomain := domain.CreateDomainUser(
-		req.FullName,
-		req.Email,
-		hash,
-	)
+	userDomain := domain.User{
+		ID:           uuid.New(),
+		FullName:     req.FullName,
+		Email:        req.Email,
+		PasswordHash: hash,
+		Version:      1,
+	}
 
 	user, err := s.authRepository.CreateUser(ctx, userDomain)
 	if err != nil {
@@ -30,4 +36,31 @@ func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) 
 	}
 
 	return user, nil
+}
+
+func (s *AuthService) generateAccessToken(ID uuid.UUID, email string) (string, error) {
+	claims := jwt.MapClaims{
+		"sub":   ID,
+		"email": email,
+		"exp":   time.Now().Add(s.jwtExpiry).Unix(),
+		"iat":   time.Now().Unix(),
+		"iss":   "expense-tracker",
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	signedToken, err := token.SignedString([]byte(s.jwtSecret))
+	if err != nil {
+		return "", err
+	}
+
+	return signedToken, nil
+}
+
+func hashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	if err != nil {
+		return "", err
+	}
+
+	return string(bytes), nil
 }

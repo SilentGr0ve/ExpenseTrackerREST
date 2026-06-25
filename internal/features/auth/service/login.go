@@ -7,6 +7,7 @@ import (
 
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/domain"
 	core_errors "github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/errors"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (s *AuthService) Login(ctx context.Context, req domain.LoginRequest) (string, error) {
@@ -19,8 +20,8 @@ func (s *AuthService) Login(ctx context.Context, req domain.LoginRequest) (strin
 		return "", fmt.Errorf("get user from repository: %w", err)
 	}
 
-	if err := checkPasswordHash(req.Password, []byte(user.PasswordHash)); err != nil {
-		return "", fmt.Errorf("compare hash and password: %w", err)
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+		return "", core_errors.ErrUnauthorized
 	}
 
 	accessToken, err := s.generateAccessToken(user.ID, user.Email)
