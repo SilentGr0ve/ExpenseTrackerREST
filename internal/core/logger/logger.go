@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -15,6 +16,12 @@ type Logger struct {
 	*zap.Logger
 	file *os.File
 }
+
+type loggerKey struct{}
+
+var (
+	key = loggerKey{}
+)
 
 func NewLogger(config config.LoggerConfig) (*Logger, error) {
 	atomicLevel := zap.NewAtomicLevel()
@@ -57,9 +64,33 @@ func NewLogger(config config.LoggerConfig) (*Logger, error) {
 	}, nil
 }
 
+func FromContext(ctx context.Context) *Logger {
+	logger, ok := ctx.Value(key).(*Logger)
+	if !ok {
+		panic("no logger in context")
+	}
+
+	return logger
+}
+
+func ToContext(ctx context.Context, log *Logger) context.Context {
+	return context.WithValue(
+		ctx,
+		key,
+		log,
+	)
+}
+
 func (l *Logger) Close() error {
 	if err := l.Logger.Sync(); err != nil {
 		return fmt.Errorf("sync logger: %w", err)
 	}
 	return l.file.Close()
+}
+
+func (l *Logger) With(fields ...zap.Field) *Logger {
+	return &Logger{
+		Logger: l.Logger.With(fields...),
+		file:   l.file,
+	}
 }
