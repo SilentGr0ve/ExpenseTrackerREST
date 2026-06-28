@@ -22,3 +22,11 @@ func (rw *ResponseWriter) WriteHeader(statusCode int) {
 func (rw *ResponseWriter) GetStatusCode() int {
 	return rw.statusCode
 }
+
+func (rw *ResponseWriter) Write(b []byte) (int, error) {
+	if rw.statusCode == -1 {
+		rw.statusCode = http.StatusOK
+	}
+
+	return rw.ResponseWriter.Write(b)
+}

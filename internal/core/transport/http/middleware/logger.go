@@ -13,7 +13,6 @@ func Logger(log *logger.Logger) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			id := r.Header.Get("X-Request-ID")
-			ctx := r.Context()
 
 			rw := response.NewResponseWriter(w)
 
@@ -23,7 +22,7 @@ func Logger(log *logger.Logger) Middleware {
 				zap.String("url", r.URL.Path),
 			)
 
-			ctx = logger.ToContext(r.Context(), l)
+			ctx := logger.ToContext(r.Context(), l)
 
 			before := time.Now()
 

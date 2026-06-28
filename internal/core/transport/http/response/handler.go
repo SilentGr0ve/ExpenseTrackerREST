@@ -54,7 +54,11 @@ func (h *ResponseHandler) ErrorResponse(err error, message string) {
 		statusCode = http.StatusInternalServerError
 	}
 
-	h.log.Error(message, zap.Error(err))
+	if statusCode >= 500 {
+		h.log.Error(message, zap.Error(err))
+	} else {
+		h.log.Warn(message, zap.Error(err))
+	}
 
 	h.JSONResponse(
 		statusCode,
