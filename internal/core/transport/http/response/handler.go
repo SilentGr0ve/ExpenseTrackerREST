@@ -62,8 +62,7 @@ func (h *ResponseHandler) ErrorResponse(err error, message string) {
 	h.JSONResponse(
 		statusCode,
 		map[string]string{
-			"error":   err.Error(),
-			"message": message,
+			"error": message,
 		},
 	)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/domain"
 	core_errors "github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/errors"
@@ -18,10 +19,11 @@ func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) 
 
 	userDomain := domain.User{
 		ID:           uuid.New(),
+		Version:      1,
 		FullName:     req.FullName,
 		Email:        req.Email,
 		PasswordHash: hash,
-		Version:      1,
+		CreatedAt:    time.Now(),
 	}
 
 	user, err := s.authRepository.CreateUser(ctx, userDomain)
