@@ -38,4 +38,5 @@ func main() {
 	defer pool.Close()
 
 	zapLogger.Warn("postgres pool initialized")
+
 }
