@@ -3,7 +3,6 @@ package response
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	core_errors "github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/errors"
@@ -69,15 +68,14 @@ func (h *ResponseHandler) ErrorResponse(err error, message string) {
 }
 
 func (h *ResponseHandler) PanicResponse(p any, message string) {
-	err := fmt.Errorf("unexpected panic: %v", p)
-
 	h.log.Error(
 		message,
-		zap.Error(err),
+		zap.Any("panic", p),
+		zap.Stack("stacktrace"),
 	)
 
-	h.ErrorResponse(
-		err,
-		message,
+	h.JSONResponse(
+		http.StatusInternalServerError,
+		map[string]string{"error": message},
 	)
 }

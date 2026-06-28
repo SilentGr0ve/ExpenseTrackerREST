@@ -72,8 +72,9 @@ func Auth(jwtSecret string) Middleware {
 	}
 }
 
-func UserIDFromContext(ctx context.Context) uuid.UUID {
-	return ctx.Value(userIDKey).(uuid.UUID)
+func UserIDFromContext(ctx context.Context) (uuid.UUID, bool) {
+	id, ok := ctx.Value(userIDKey).(uuid.UUID)
+	return id, ok
 }
 
 func ContextWithUserID(ctx context.Context, id uuid.UUID) context.Context {
