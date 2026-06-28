@@ -9,6 +9,11 @@ import (
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/config"
 	logger "github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/logger"
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/repository"
+	httpserver "github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http"
+	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/middleware"
+	auth_repository "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/auth/repository"
+	auth_service "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/auth/service"
+	auth_transport "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/auth/transport"
 	"go.uber.org/zap"
 )
 
@@ -39,4 +44,37 @@ func main() {
 
 	zapLogger.Warn("postgres pool initialized")
 
+	authRepo := auth_repository.NewAuthRepository(pool, appConfig.Database.Timeout)
+	authService := auth_service.NewAuthService(authRepo, appConfig.JWT.Secret, appConfig.JWT.AccessExpiry)
+	authHandler := auth_transport.NewAuthHTTPHandler(authService)
+
+	httpServer := httpserver.NewHTTPServer(
+		appConfig.Server,
+		zapLogger,
+		middleware.CORS(appConfig.Server.AllowedOrigins),
+		middleware.RequestID(),
+		middleware.Logger(zapLogger),
+		middleware.Panic(),
+	)
+
+	publicRouterV1 := httpserver.NewAPIVersionRouter(
+		1,
+		nil,
+	)
+	publicRouterV1.AddRoutes(authHandler.Routes()...)
+
+	protectedRouterV1 := httpserver.NewAPIVersionRouter(
+		1,
+		[]middleware.Middleware{middleware.Auth(appConfig.JWT.Secret)},
+	)
+	protectedRouterV1.AddRoutes(authHandler.ProtectedRoutes()...)
+
+	httpServer.RegisterAPIRouters(
+		publicRouterV1,
+		protectedRouterV1,
+	)
+
+	if err := httpServer.Run(ctx); err != nil {
+		zapLogger.Error("HTTP server run error", zap.Error(err))
+	}
 }

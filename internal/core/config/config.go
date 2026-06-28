@@ -30,6 +30,7 @@ type ServerConfig struct {
 	Port            string        `envconfig:"PORT" default:"8080"`
 	Environment     string        `envconfig:"ENV" default:"development"`
 	ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT" default:"30s"`
+	AllowedOrigins  []string      `envconfig:"ALLOWED_ORIGINS" required:"true"`
 }
 
 type LoggerConfig struct {
