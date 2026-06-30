@@ -18,7 +18,7 @@ type AuthService interface {
 	Login(ctx context.Context, req domain.LoginRequest) (string, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
-	UpdateUser(ctx context.Context, id uuid.UUID, patch UserPatch) (domain.User, error)
+	UpdateUser(ctx context.Context, id uuid.UUID, patch domain.UserPatch) (domain.User, error)
 }
 
 func NewAuthHTTPHandler(authService AuthService) *AuthHTTPHandler {
@@ -36,7 +36,7 @@ func (h *AuthHTTPHandler) Routes() []httpserver.Route {
 
 func (h *AuthHTTPHandler) ProtectedRoutes() []httpserver.Route {
 	return []httpserver.Route{
-		{Method: http.MethodGet, Path: "/users/me", Handler: h.Me},
+		{Method: http.MethodGet, Path: "/users/me", Handler: h.GetMe},
 		{Method: http.MethodDelete, Path: "/users/me", Handler: h.DeleteMe},
 		{Method: http.MethodPatch, Path: "/users/me", Handler: h.UpdateMe},
 	}

@@ -17,7 +17,13 @@ type User struct {
 	UpdatedAt    *time.Time
 }
 
-type SensitiveUserResponse struct {
+type UserPatch struct {
+	FullName *string
+	Email    *string
+	Password *string
+}
+
+type UserResponse struct {
 	ID        uuid.UUID  `json:"id"`
 	Version   int        `json:"version"`
 	FullName  string     `json:"full_name"`

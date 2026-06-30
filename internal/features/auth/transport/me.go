@@ -10,7 +10,7 @@ import (
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/response"
 )
 
-func (h *AuthHTTPHandler) Me(rw http.ResponseWriter, r *http.Request) {
+func (h *AuthHTTPHandler) GetMe(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)
 	rh := response.NewResponseHandler(rw, log)
@@ -27,7 +27,7 @@ func (h *AuthHTTPHandler) Me(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	getUser := domain.SensitiveUserResponse{
+	getUser := domain.UserResponse{
 		ID:        user.ID,
 		Version:   user.Version,
 		FullName:  user.FullName,

@@ -7,11 +7,10 @@ import (
 
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/domain"
 	core_errors "github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/errors"
-	auth_transport "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/auth/transport"
 	"github.com/google/uuid"
 )
 
-func (s *AuthService) UpdateUser(ctx context.Context, id uuid.UUID, patch auth_transport.UserPatch) (domain.User, error) {
+func (s *AuthService) UpdateUser(ctx context.Context, id uuid.UUID, patch domain.UserPatch) (domain.User, error) {
 	user, err := s.authRepository.GetUserByID(ctx, id)
 	if err != nil {
 		return domain.User{}, fmt.Errorf("get user from repository: %w", err)

@@ -25,9 +25,5 @@ func (h *AuthHTTPHandler) DeleteMe(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rh.JSONResponse(
-		http.StatusNoContent,
-		nil,
-	)
-
+	rh.NoContent()
 }

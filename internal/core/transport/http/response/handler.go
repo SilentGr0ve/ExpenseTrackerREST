@@ -79,3 +79,7 @@ func (h *ResponseHandler) PanicResponse(p any, message string) {
 		map[string]string{"error": message},
 	)
 }
+
+func (h *ResponseHandler) NoContent() {
+	h.WriteHeader(http.StatusNoContent)
+}

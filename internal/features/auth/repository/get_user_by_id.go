@@ -33,7 +33,7 @@ func (r *AuthRepository) GetUserByID(ctx context.Context, id uuid.UUID) (domain.
 		&user.UpdatedAt,
 	); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.User{}, fmt.Errorf("user with id=%d: %w", id, core_errors.ErrNotFound)
+			return domain.User{}, fmt.Errorf("user with id=%s: %w", id, core_errors.ErrNotFound)
 		}
 
 		return domain.User{}, fmt.Errorf("scan error: %w", err)

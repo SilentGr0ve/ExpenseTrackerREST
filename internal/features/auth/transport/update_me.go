@@ -11,10 +11,10 @@ import (
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/response"
 )
 
-type UserPatch struct {
+type updateUserRequest struct {
 	FullName *string `json:"full_name" validate:"omitempty,min=3,max=100"`
-	Email    *string `json:"email" validate:"omitempty,email"`
-	Password *string `json:"password" validate:"omitempty,min=6,max=255"`
+	Email    *string `json:"email"     validate:"omitempty,email"`
+	Password *string `json:"password"  validate:"omitempty,min=6,max=255"`
 }
 
 func (h *AuthHTTPHandler) UpdateMe(rw http.ResponseWriter, r *http.Request) {
@@ -28,10 +28,16 @@ func (h *AuthHTTPHandler) UpdateMe(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var patch UserPatch
-	if err := request.DecodeAndValidateRequest(r, &patch); err != nil {
+	var patchRequest updateUserRequest
+	if err := request.DecodeAndValidateRequest(r, &patchRequest); err != nil {
 		rh.ErrorResponse(err, "failed to decode and validate request")
 		return
+	}
+
+	patch := domain.UserPatch{
+		FullName: patchRequest.FullName,
+		Email:    patchRequest.Email,
+		Password: patchRequest.Password,
 	}
 
 	user, err := h.authService.UpdateUser(ctx, userID, patch)
@@ -40,7 +46,7 @@ func (h *AuthHTTPHandler) UpdateMe(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	patchedUser := domain.SensitiveUserResponse{
+	patchedUser := domain.UserResponse{
 		ID:        user.ID,
 		Version:   user.Version,
 		FullName:  user.FullName,
