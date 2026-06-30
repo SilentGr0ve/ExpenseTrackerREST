@@ -7,10 +7,17 @@ import (
 	core_errors "github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/errors"
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/logger"
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/middleware"
+	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/request"
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/response"
 )
 
-func (h *AuthHTTPHandler) Me(rw http.ResponseWriter, r *http.Request) {
+type UserPatch struct {
+	FullName *string `json:"full_name" validate:"omitempty,min=3,max=100"`
+	Email    *string `json:"email" validate:"omitempty,email"`
+	Password *string `json:"password" validate:"omitempty,min=6,max=255"`
+}
+
+func (h *AuthHTTPHandler) UpdateMe(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)
 	rh := response.NewResponseHandler(rw, log)
@@ -21,13 +28,19 @@ func (h *AuthHTTPHandler) Me(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.authService.GetUserByID(ctx, userID)
-	if err != nil {
-		rh.ErrorResponse(err, "failed to get user")
+	var patch UserPatch
+	if err := request.DecodeAndValidateRequest(r, &patch); err != nil {
+		rh.ErrorResponse(err, "failed to decode and validate request")
 		return
 	}
 
-	getUser := domain.SensitiveUserResponse{
+	user, err := h.authService.UpdateUser(ctx, userID, patch)
+	if err != nil {
+		rh.ErrorResponse(err, "failed to update user")
+		return
+	}
+
+	patchedUser := domain.SensitiveUserResponse{
 		ID:        user.ID,
 		Version:   user.Version,
 		FullName:  user.FullName,
@@ -36,5 +49,8 @@ func (h *AuthHTTPHandler) Me(rw http.ResponseWriter, r *http.Request) {
 		UpdatedAt: user.UpdatedAt,
 	}
 
-	rh.JSONResponse(http.StatusOK, getUser)
+	rh.JSONResponse(
+		http.StatusOK,
+		patchedUser,
+	)
 }

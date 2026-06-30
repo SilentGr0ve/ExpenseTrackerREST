@@ -16,3 +16,12 @@ type User struct {
 	CreatedAt    time.Time
 	UpdatedAt    *time.Time
 }
+
+type SensitiveUserResponse struct {
+	ID        uuid.UUID  `json:"id"`
+	Version   int        `json:"version"`
+	FullName  string     `json:"full_name"`
+	Email     string     `json:"email"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt *time.Time `json:"updated_at"`
+}
