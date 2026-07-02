@@ -15,6 +15,9 @@ import (
 	auth_repository "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/auth/repository"
 	auth_service "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/auth/service"
 	auth_transport "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/auth/transport"
+	categories_repository "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/categories/repository"
+	categories_service "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/categories/service"
+	categories_transport "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/categories/transport"
 	"go.uber.org/zap"
 )
 
@@ -49,6 +52,10 @@ func main() {
 	authService := auth_service.NewAuthService(authRepo, appConfig.JWT.Secret, appConfig.JWT.AccessExpiry)
 	authHandler := auth_transport.NewAuthHTTPHandler(authService)
 
+	categoriesRepo := categories_repository.NewCategoriesRepository(pool, appConfig.Database.Timeout)
+	categoriesService := categories_service.NewCategoryService(categoriesRepo)
+	categoriesHandler := categories_transport.NewCategoriesHTTPHandler(categoriesService)
+
 	httpServer := httpserver.NewHTTPServer(
 		appConfig.Server,
 		zapLogger,
@@ -69,6 +76,7 @@ func main() {
 		[]middleware.Middleware{middleware.Auth(appConfig.JWT.Secret)},
 	)
 	protectedRouterV1.AddRoutes(authHandler.ProtectedRoutes()...)
+	protectedRouterV1.AddRoutes(categoriesHandler.ProtectedRoutes()...)
 
 	httpServer.RegisterAPIRouters(
 		publicRouterV1,
