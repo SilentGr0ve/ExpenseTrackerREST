@@ -7,9 +7,14 @@ import (
 )
 
 type Category struct {
-	ID     uuid.UUID
-	UserID uuid.UUID
-
+	ID        uuid.UUID
+	Version   int
+	UserID    uuid.UUID
 	Name      string
 	CreatedAt time.Time
+	UpdatedAt *time.Time
+}
+
+type CategoryPatch struct {
+	Name *string
 }

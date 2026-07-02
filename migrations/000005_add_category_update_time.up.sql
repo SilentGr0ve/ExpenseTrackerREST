@@ -1,0 +1,1 @@
+ALTER TABLE tracker.categories ADD COLUMN updated_at TIMESTAMPTZ;
