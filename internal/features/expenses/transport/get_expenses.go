@@ -14,8 +14,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// GET /api/v1/expenses?category_id=uuid&date_from=2024-01-01&date_to=2024-01-31&limit=20&offset=0
-
 func (h *ExpensesHTTPHandler) GetExpenses(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)
