@@ -1,4 +1,4 @@
-package repository
+package auth_repository
 
 import (
 	"context"
@@ -15,7 +15,7 @@ func (r *AuthRepository) GetUserByEmail(ctx context.Context, email string) (doma
 	defer cancel()
 
 	query := `
-	SELECT id, version, full_name, email, created_at, updated_at FROM tracker.users WHERE email = $1; 
+	SELECT id, version, full_name, email, password_hash, created_at, updated_at FROM tracker.users WHERE email = $1; 
 	`
 
 	row := r.pool.QueryRow(ctx, query, email)
@@ -27,6 +27,7 @@ func (r *AuthRepository) GetUserByEmail(ctx context.Context, email string) (doma
 		&user.Version,
 		&user.FullName,
 		&user.Email,
+		&user.PasswordHash,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	); err != nil {

@@ -1,0 +1,1 @@
+ALTER TABLE tracker.categories DROP COLUMN IF EXISTS version;

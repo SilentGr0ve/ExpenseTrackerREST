@@ -1,0 +1,43 @@
+package auth_transport
+
+import (
+	"errors"
+	"net/http"
+
+	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/domain"
+	core_errors "github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/errors"
+	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/logger"
+	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/request"
+	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/response"
+)
+
+func (h *AuthHTTPHandler) Register(rw http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	log := logger.FromContext(ctx)
+	rh := response.NewResponseHandler(rw, log)
+
+	var registerRequest domain.RegisterRequest
+
+	if err := request.DecodeAndValidateRequest(r, &registerRequest); err != nil {
+		rh.ErrorResponse(err, "failed to decode and validate request")
+		return
+	}
+
+	user, err := h.authService.Register(ctx, registerRequest)
+	if err != nil {
+		if errors.Is(err, core_errors.ErrConflict) {
+			rh.ErrorResponse(err, "user with this email already exists")
+			return
+		}
+		rh.ErrorResponse(err, "failed to create user")
+		return
+	}
+
+	registerResponse := domain.RegisterResponse{
+		Email:     user.Email,
+		FullName:  user.FullName,
+		CreatedAt: user.CreatedAt,
+	}
+
+	rh.JSONResponse(http.StatusCreated, registerResponse)
+}
