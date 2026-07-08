@@ -73,8 +73,6 @@ func (r *ExpensesRepository) GetExpenses(ctx context.Context, userID uuid.UUID, 
 		expenses = append(expenses, expense)
 	}
 
-	// 2026-01-02
-
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("rows error: %w", err)
 	}

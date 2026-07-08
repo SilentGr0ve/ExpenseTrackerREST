@@ -21,6 +21,9 @@ import (
 	expenses_repository "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/expenses/repository"
 	expenses_service "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/expenses/service"
 	expenses_transport "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/expenses/transport"
+	statistics_repository "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/statistics/repository"
+	statistics_service "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/statistics/service"
+	statistics_transport "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/statistics/transport"
 	"go.uber.org/zap"
 )
 
@@ -63,6 +66,10 @@ func main() {
 	expenseService := expenses_service.NewExpensesService(expenseRepo)
 	expenseHandler := expenses_transport.NewExpensesHTTPHandler(expenseService)
 
+	statisticsRepo := statistics_repository.NewStatisticsRepository(pool, appConfig.Database.Timeout)
+	statisticsService := statistics_service.NewStatisticsService(statisticsRepo)
+	statisticsHandler := statistics_transport.NewStatisticsHTTPHandler(statisticsService)
+
 	httpServer := httpserver.NewHTTPServer(
 		appConfig.Server,
 		zapLogger,
@@ -85,6 +92,7 @@ func main() {
 	protectedRouterV1.AddRoutes(authHandler.ProtectedRoutes()...)
 	protectedRouterV1.AddRoutes(categoriesHandler.ProtectedRoutes()...)
 	protectedRouterV1.AddRoutes(expenseHandler.ProtectedRoutes()...)
+	protectedRouterV1.AddRoutes(statisticsHandler.ProtectedRoutes()...)
 
 	httpServer.RegisterAPIRouters(
 		publicRouterV1,
