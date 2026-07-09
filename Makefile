@@ -41,5 +41,7 @@ tracker-run:
 tracker-deploy:
 	@docker compose up -d --build tracker
 
+tracker-undeploy:
+	@docker compose down tracker
 ps:
 	@docker compose ps
