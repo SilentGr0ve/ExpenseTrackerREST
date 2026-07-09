@@ -1,4 +1,32 @@
 services:
+  tracker:
+    build:
+      context: ${PROJECT_ROOT}
+      dockerfile: ${PROJECT_ROOT}/cmd/api/Dockerfile
+    container_name: expense_tracker
+    environment:
+      - SERVER_PORT=8080
+      - SERVER_SHUTDOWN_TIMEOUT=${SERVER_SHUTDOWN_TIMEOUT}
+      - SERVER_ENV=${SERVER_ENV}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - LOGGER_LEVEL=${LOGGER_LEVEL}
+      - LOGGER_FOLDER=/app/out/logs
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ACCESS_EXPIRY=${JWT_ACCESS_EXPIRY}
+      - POSTGRES_HOST=tracker_postgres
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_SSLMODE=${POSTGRES_SSLMODE}
+      - POSTGRES_MAXCONNS=${POSTGRES_MAXCONNS}
+      - POSTGRES_TIMEOUT=${POSTGRES_TIMEOUT}
+    volumes:
+      - ${PROJECT_ROOT}/out/logs:/app/out/logs
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
   tracker_postgres:
     image: postgres:18.4-bookworm
     container_name: expense_tracker-postgres

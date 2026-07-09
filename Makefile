@@ -1,4 +1,4 @@
--include .env
+ -include .env
 export
 
 export PROJECT_ROOT=$(shell pwd)
@@ -37,3 +37,9 @@ tracker-run:
 	@export LOGGER_FOLDER=${PROJECT_ROOT}/out/logs && \
 	go mod tidy && \
 	go run ${PROJECT_ROOT}/cmd/api/main.go
+
+tracker-deploy:
+	@docker compose up -d --build tracker
+
+ps:
+	@docker compose ps
