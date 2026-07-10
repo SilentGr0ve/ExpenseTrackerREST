@@ -16,14 +16,20 @@ func (h *AuthHTTPHandler) Register(rw http.ResponseWriter, r *http.Request) {
 	log := logger.FromContext(ctx)
 	rh := response.NewResponseHandler(rw, log)
 
-	var registerRequest domain.RegisterRequest
+	var registerRequest RegisterRequest
 
 	if err := request.DecodeAndValidateRequest(r, &registerRequest); err != nil {
 		rh.ErrorResponse(err, "failed to decode and validate request")
 		return
 	}
 
-	user, err := h.authService.Register(ctx, registerRequest)
+	register := domain.Register{
+		Email:    registerRequest.Email,
+		Password: registerRequest.Password,
+		FullName: registerRequest.FullName,
+	}
+
+	user, err := h.authService.Register(ctx, register)
 	if err != nil {
 		if errors.Is(err, core_errors.ErrConflict) {
 			rh.ErrorResponse(err, "user with this email already exists")
@@ -33,7 +39,7 @@ func (h *AuthHTTPHandler) Register(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	registerResponse := domain.RegisterResponse{
+	registerResponse := RegisterResponse{
 		Email:     user.Email,
 		FullName:  user.FullName,
 		CreatedAt: user.CreatedAt,

@@ -46,7 +46,7 @@ func (h *AuthHTTPHandler) UpdateMe(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	patchedUser := domain.UserResponse{
+	patchedUser := UserResponse{
 		ID:        user.ID,
 		Version:   user.Version,
 		FullName:  user.FullName,

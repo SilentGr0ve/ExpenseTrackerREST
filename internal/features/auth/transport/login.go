@@ -14,20 +14,25 @@ func (h *AuthHTTPHandler) Login(rw http.ResponseWriter, r *http.Request) {
 	log := logger.FromContext(ctx)
 	rh := response.NewResponseHandler(rw, log)
 
-	var loginRequest domain.LoginRequest
+	var loginRequest LoginRequest
 
 	if err := request.DecodeAndValidateRequest(r, &loginRequest); err != nil {
 		rh.ErrorResponse(err, "failed to decode and validate request")
 		return
 	}
 
-	token, err := h.authService.Login(ctx, loginRequest)
+	login := domain.Login{
+		Email:    loginRequest.Email,
+		Password: loginRequest.Password,
+	}
+
+	token, err := h.authService.Login(ctx, login)
 	if err != nil {
 		rh.ErrorResponse(err, "failed to authorize")
 		return
 	}
 
-	loginResponse := domain.LoginResponse{
+	loginResponse := LoginResponse{
 		AccessToken: token,
 	}
 
