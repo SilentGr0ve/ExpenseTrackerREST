@@ -14,8 +14,8 @@ type AuthHTTPHandler struct {
 }
 
 type AuthService interface {
-	Register(ctx context.Context, req domain.RegisterRequest) (domain.User, error)
-	Login(ctx context.Context, req domain.LoginRequest) (string, error)
+	Register(ctx context.Context, register domain.Register) (domain.User, error)
+	Login(ctx context.Context, login domain.Login) (string, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	UpdateUser(ctx context.Context, id uuid.UUID, patch domain.UserPatch) (domain.User, error)

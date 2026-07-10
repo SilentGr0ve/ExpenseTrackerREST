@@ -11,8 +11,8 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) (domain.User, error) {
-	hash, err := hashPassword(req.Password)
+func (s *AuthService) Register(ctx context.Context, register domain.Register) (domain.User, error) {
+	hash, err := hashPassword(register.Password)
 	if err != nil {
 		return domain.User{}, fmt.Errorf("hashing password: %w", err)
 	}
@@ -20,8 +20,8 @@ func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) 
 	userDomain := domain.User{
 		ID:           uuid.New(),
 		Version:      1,
-		FullName:     req.FullName,
-		Email:        req.Email,
+		FullName:     register.FullName,
+		Email:        register.Email,
 		PasswordHash: hash,
 		CreatedAt:    time.Now(),
 	}

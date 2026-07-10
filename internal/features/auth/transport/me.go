@@ -3,7 +3,6 @@ package auth_transport
 import (
 	"net/http"
 
-	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/domain"
 	core_errors "github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/errors"
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/logger"
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/middleware"
@@ -27,7 +26,7 @@ func (h *AuthHTTPHandler) GetMe(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	getUser := domain.UserResponse{
+	getUser := UserResponse{
 		ID:        user.ID,
 		Version:   user.Version,
 		FullName:  user.FullName,

@@ -10,9 +10,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *AuthService) Login(ctx context.Context, req domain.LoginRequest) (string, error) {
+func (s *AuthService) Login(ctx context.Context, login domain.Login) (string, error) {
 
-	user, err := s.authRepository.GetUserByEmail(ctx, req.Email)
+	user, err := s.authRepository.GetUserByEmail(ctx, login.Email)
 	if err != nil {
 		if errors.Is(err, core_errors.ErrNotFound) {
 			return "", core_errors.ErrUnauthorized
@@ -20,7 +20,7 @@ func (s *AuthService) Login(ctx context.Context, req domain.LoginRequest) (strin
 		return "", fmt.Errorf("get user from repository: %w", err)
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(login.Password)); err != nil {
 		return "", core_errors.ErrUnauthorized
 	}
 
