@@ -498,6 +498,99 @@
                 </div>
             `);
         }
+
+        function renderLogin() {
+            renderContent(`
+                <div class="card" style="max-width: 400px; margin: 40px auto;">
+                    <h2 class="card-title" style="margin-bottom: 20px;">\u0412\u0445\u043E\u0434</h2>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">\u041F\u0430\u0440\u043E\u043B\u044C</label>
+                            <input type="password" id="password" required>
+                        </div>
+                        <div id="login-error"></div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">\u0412\u043E\u0439\u0442\u0438</button>
+                    </form>
+                    <p style="margin-top: 15px; text-align: center;">
+                        \u041D\u0435\u0442 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0430? <a href="#register">\u0417\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u043E\u0432\u0430\u0442\u044C\u0441\u044F</a>
+                    </p>
+                </div>
+            `);
+
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('login-error');
+
+            try {
+                const data = await AuthAPI.login({ email, password });
+                setToken(data.token);
+                navigate('expenses');
+            } catch (error) {
+                errorEl.innerHTML = showError(error.message);
+            }
+        }
+
+        function renderRegister() {
+            renderContent(`
+                <div class="card" style="max-width: 400px; margin: 40px auto;">
+                    <h2 class="card-title" style="margin-bottom: 20px;">\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044F</h2>
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label for="fullName">\u0418\u043C\u044F</label>
+                            <input type="text" id="fullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">\u041F\u0430\u0440\u043E\u043B\u044C</label>
+                            <input type="password" id="password" required minlength="6">
+                        </div>
+                        <div id="register-error"></div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">\u0417\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u043E\u0432\u0430\u0442\u044C\u0441\u044F</button>
+                    </form>
+                    <p style="margin-top: 15px; text-align: center;">
+                        \u0423\u0436\u0435 \u0435\u0441\u0442\u044C \u0430\u043A\u043A\u0430\u0443\u043D\u0442? <a href="#login">\u0412\u043E\u0439\u0442\u0438</a>
+                    </p>
+                </div>
+            `);
+
+            document.getElementById('register-form').addEventListener('submit', handleRegister);
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('register-error');
+
+            try {
+                await AuthAPI.register({ fullName, email, password });
+                navigate('login');
+            } catch (error) {
+                errorEl.innerHTML = showError(error.message);
+            }
+        }
+
+        registerRoute('login', renderLogin);
+        registerRoute('register', renderRegister);
+        registerRoute('expenses', renderExpenses);
+        registerRoute('categories', renderCategories);
+        registerRoute('statistics', renderStatistics);
+        registerRoute('profile', renderProfile);
+
+        render();
     </script>
 </body>
 </html>
