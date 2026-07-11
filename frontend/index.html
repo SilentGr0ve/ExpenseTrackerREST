@@ -242,7 +242,67 @@
 <body>
     <div id="app"></div>
     <script>
-        // JavaScript will be added in subsequent tasks
+        const App = {
+            state: {
+                user: null,
+                token: localStorage.getItem('token'),
+                theme: localStorage.getItem('theme') || 'light'
+            },
+            routes: {},
+            currentPage: null
+        };
+
+        function setState(newState) {
+            App.state = { ...App.state, ...newState };
+            render();
+        }
+
+        function navigate(page) {
+            window.location.hash = page;
+        }
+
+        function getRoute() {
+            return window.location.hash.slice(1) || 'login';
+        }
+
+        function registerRoute(name, handler) {
+            App.routes[name] = handler;
+        }
+
+        function router() {
+            const route = getRoute();
+            const protectedRoutes = ['expenses', 'categories', 'statistics', 'profile'];
+
+            if (protectedRoutes.includes(route) && !App.state.token) {
+                navigate('login');
+                return;
+            }
+
+            if (App.routes[route]) {
+                App.currentPage = route;
+                App.routes[route]();
+            }
+        }
+
+        window.addEventListener('hashchange', router);
+        window.addEventListener('load', router);
+
+        function toggleTheme() {
+            const newTheme = App.state.theme === 'light' ? 'dark' : 'light';
+            setState({ theme: newTheme });
+            localStorage.setItem('theme', newTheme);
+            applyTheme();
+        }
+
+        function applyTheme() {
+            document.documentElement.setAttribute('data-theme', App.state.theme);
+            const themeBtn = document.getElementById('theme-toggle');
+            if (themeBtn) {
+                themeBtn.textContent = App.state.theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+            }
+        }
+
+        applyTheme();
     </script>
 </body>
 </html>
