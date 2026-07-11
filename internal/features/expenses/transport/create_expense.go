@@ -12,6 +12,18 @@ import (
 	"time"
 )
 
+// CreateExpense godoc
+// @Summary Create a new expense
+// @Description Create a new expense for the authorized user
+// @Tags expenses
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body CreateExpenseRequest true "Expense payload"
+// @Success 201 {object} ExpenseResponse "Expense created successfully"
+// @Failure 400 {object} response.ErrorResponse "Invalid request body"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /expenses [post]
 func (h *ExpensesHTTPHandler) CreateExpense(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

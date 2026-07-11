@@ -11,12 +11,18 @@ import (
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/response"
 )
 
-type updateUserRequest struct {
-	FullName *string `json:"full_name" validate:"omitempty,min=3,max=100"`
-	Email    *string `json:"email"     validate:"omitempty,email"`
-	Password *string `json:"password"  validate:"omitempty,min=6,max=255"`
-}
-
+// UpdateMeUser godoc
+// @Summary Update current user
+// @Description Update the authenticated user's profile
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body UpdateUserRequest true "Partial user fields to update"
+// @Success 200 {object} UserResponse "Updated user returned"
+// @Failure 400 {object} response.ErrorResponse "Invalid request body"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /users/me [patch]
 func (h *AuthHTTPHandler) UpdateMe(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)
@@ -28,7 +34,7 @@ func (h *AuthHTTPHandler) UpdateMe(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var patchRequest updateUserRequest
+	var patchRequest UpdateUserRequest
 	if err := request.DecodeAndValidateRequest(r, &patchRequest); err != nil {
 		rh.ErrorResponse(err, "failed to decode and validate request")
 		return

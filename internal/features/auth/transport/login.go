@@ -9,6 +9,18 @@ import (
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/response"
 )
 
+// LoginUser godoc
+// @Summary Login user
+// @Description Authenticate with email and password
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Login credentials"
+// @Success 200 {object} LoginResponse "Access token returned"
+// @Failure 400 {object} response.ErrorResponse "Invalid request body"
+// @Failure 401 {object} response.ErrorResponse "Invalid credentials"
+// @Failure 404 {object} response.ErrorResponse "User not found"
+// @Router /auth/login [post]
 func (h *AuthHTTPHandler) Login(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

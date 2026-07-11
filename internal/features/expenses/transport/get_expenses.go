@@ -14,6 +14,21 @@ import (
 	"github.com/google/uuid"
 )
 
+// GetExpenses godoc
+// @Summary Get user expenses
+// @Description Return a list of expenses for the authorized user with optional filters
+// @Tags expenses
+// @Produce json
+// @Security BearerAuth
+// @Param category_id query string false "Filter by category UUID"
+// @Param date_from query string false "Filter by start date (YYYY-MM-DD)"
+// @Param date_to query string false "Filter by end date (YYYY-MM-DD)"
+// @Param limit query int false "Limit number of results"
+// @Param offset query int false "Offset for pagination"
+// @Success 200 {array} ExpenseResponse "Expense list returned"
+// @Failure 400 {object} response.ErrorResponse "Invalid query parameter"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /expenses [get]
 func (h *ExpensesHTTPHandler) GetExpenses(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

@@ -13,6 +13,20 @@ import (
 	"github.com/google/uuid"
 )
 
+// UpdateCategory godoc
+// @Summary Update user category
+// @Description Update the category name for the authorized user
+// @Tags categories
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Category ID"
+// @Param request body CategoryPatchRequest true "Partial category field to update"
+// @Success 200 {object} CategoryResponse "Category successfully updated"
+// @Failure 400 {object} response.ErrorResponse "Invalid request body or id"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 404 {object} response.ErrorResponse "Category not found"
+// @Router /categories/{id} [patch]
 func (h *CategoriesHTTPHandler) UpdateCategory(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

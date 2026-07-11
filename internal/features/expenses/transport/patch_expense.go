@@ -15,6 +15,20 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+// PatchExpense godoc
+// @Summary Update an expense
+// @Description Partially update an expense for the authorized user
+// @Tags expenses
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Expense ID"
+// @Param request body ExpensePatchRequest true "Partial expense fields to update"
+// @Success 200 {object} ExpenseResponse "Expense updated"
+// @Failure 400 {object} response.ErrorResponse "Invalid request body or ID"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 404 {object} response.ErrorResponse "Expense not found"
+// @Router /expenses/{id} [patch]
 func (h *ExpensesHTTPHandler) PatchExpense(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

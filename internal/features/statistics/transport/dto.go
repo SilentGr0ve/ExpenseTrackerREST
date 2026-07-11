@@ -13,21 +13,21 @@ type StatisticsResponse struct {
 }
 
 type PeriodResponse struct {
-	From string `json:"date_from"`
-	To   string `json:"date_to"`
+	From string `json:"date_from" example:"2026-01-01"`
+	To   string `json:"date_to" example:"2026-12-31"`
 }
 
 type SummaryResponse struct {
-	TotalAmount   decimal.Decimal `json:"total_amount"`
-	TotalExpenses int             `json:"total_expenses"`
-	AverageAmount decimal.Decimal `json:"average_amount"`
+	TotalAmount   decimal.Decimal `json:"total_amount" example:"9999.99"`
+	TotalExpenses int             `json:"total_expenses" example:"10"`
+	AverageAmount decimal.Decimal `json:"average_amount" example:"999.99"`
 }
 
 type CategorySummaryResponse struct {
-	CategoryID    uuid.UUID       `json:"category_id"`
-	CategoryName  string          `json:"category_name"`
-	TotalAmount   decimal.Decimal `json:"total_amount"`
-	ExpensesCount int             `json:"expenses_count"`
+	CategoryID    uuid.UUID       `json:"category_id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	CategoryName  string          `json:"category_name" example:"Fastfood"`
+	TotalAmount   decimal.Decimal `json:"total_amount" example:"999.99"`
+	ExpensesCount int             `json:"expenses_count" example:"1"`
 }
 
 func toResponse(statistics domain.Statistics) StatisticsResponse {
