@@ -590,6 +590,204 @@
         registerRoute('statistics', renderStatistics);
         registerRoute('profile', renderProfile);
 
+        async function renderExpenses() {
+            renderContent(`
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">\u0420\u0430\u0441\u0445\u043E\u0434\u044B</h2>
+                        <button class="btn btn-primary" onclick="showAddExpenseForm()">\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0440\u0430\u0441\u0445\u043E\u0434</button>
+                    </div>
+                    <div id="expenses-list">\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430...</div>
+                </div>
+                <div id="expense-form-container" style="display: none;"></div>
+            `);
+
+            await loadExpenses();
+        }
+
+        async function loadExpenses() {
+            try {
+                const expenses = await ExpensesAPI.getAll();
+                const listEl = document.getElementById('expenses-list');
+
+                if (expenses.length === 0) {
+                    listEl.innerHTML = '<p>\u041D\u0435\u0442 \u0440\u0430\u0441\u0445\u043E\u0434\u043E\u0432</p>';
+                    return;
+                }
+
+                listEl.innerHTML = `
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>\u0414\u0430\u0442\u0430</th>
+                                <th>\u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044F</th>
+                                <th>\u0421\u0443\u043C\u043C\u0430</th>
+                                <th>\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435</th>
+                                <th>\u0414\u0435\u0439\u0441\u0442\u0432\u0438\u044F</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${expenses.map(expense => `
+                                <tr>
+                                    <td>${formatDate(expense.expenseDate)}</td>
+                                    <td>${expense.categoryName || '-'}</td>
+                                    <td>${formatAmount(expense.amount)}</td>
+                                    <td>${expense.description || '-'}</td>
+                                    <td class="actions">
+                                        <button class="btn btn-secondary" onclick="showEditExpenseForm('${expense.id}')">\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C</button>
+                                        <button class="btn btn-danger" onclick="deleteExpense('${expense.id}')">\u0423\u0434\u0430\u043B\u0438\u0442\u044C</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                document.getElementById('expenses-list').innerHTML = showError(error.message);
+            }
+        }
+
+        async function showAddExpenseForm() {
+            const categories = await CategoriesAPI.getAll();
+            const container = document.getElementById('expense-form-container');
+            container.style.display = 'block';
+
+            container.innerHTML = `
+                <div class="card">
+                    <h3 class="card-title">\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0440\u0430\u0441\u0445\u043E\u0434</h3>
+                    <form id="expense-form">
+                        <div class="form-group">
+                            <label for="category">\u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044F</label>
+                            <select id="category" required>
+                                ${categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">\u0421\u0443\u043C\u043C\u0430</label>
+                            <input type="number" id="amount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="date">\u0414\u0430\u0442\u0430</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435</label>
+                            <input type="text" id="description">
+                        </div>
+                        <div id="expense-error"></div>
+                        <div class="actions">
+                            <button type="submit" class="btn btn-primary">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button>
+                            <button type="button" class="btn btn-secondary" onclick="hideExpenseForm()">\u041E\u0442\u043C\u0435\u043D\u0430</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.getElementById('expense-form').addEventListener('submit', handleAddExpense);
+        }
+
+        async function handleAddExpense(e) {
+            e.preventDefault();
+            const data = {
+                categoryId: document.getElementById('category').value,
+                amount: document.getElementById('amount').value,
+                expenseDate: document.getElementById('date').value,
+                description: document.getElementById('description').value || null
+            };
+            const errorEl = document.getElementById('expense-error');
+
+            try {
+                await ExpensesAPI.create(data);
+                hideExpenseForm();
+                await loadExpenses();
+            } catch (error) {
+                errorEl.innerHTML = showError(error.message);
+            }
+        }
+
+        function hideExpenseForm() {
+            const container = document.getElementById('expense-form-container');
+            container.style.display = 'none';
+            container.innerHTML = '';
+        }
+
+        async function showEditExpenseForm(id) {
+            const [expense, categories] = await Promise.all([
+                ExpensesAPI.getById(id),
+                CategoriesAPI.getAll()
+            ]);
+
+            const container = document.getElementById('expense-form-container');
+            container.style.display = 'block';
+
+            container.innerHTML = `
+                <div class="card">
+                    <h3 class="card-title">\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0440\u0430\u0441\u0445\u043E\u0434</h3>
+                    <form id="expense-form">
+                        <div class="form-group">
+                            <label for="category">\u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044F</label>
+                            <select id="category" required>
+                                ${categories.map(cat => `
+                                    <option value="${cat.id}" ${cat.id === expense.categoryId ? 'selected' : ''}>${cat.name}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">\u0421\u0443\u043C\u043C\u0430</label>
+                            <input type="number" id="amount" step="0.01" value="${expense.amount}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="date">\u0414\u0430\u0442\u0430</label>
+                            <input type="date" id="date" value="${expense.expenseDate.split('T')[0]}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435</label>
+                            <input type="text" id="description" value="${expense.description || ''}">
+                        </div>
+                        <div id="expense-error"></div>
+                        <div class="actions">
+                            <button type="submit" class="btn btn-primary">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button>
+                            <button type="button" class="btn btn-secondary" onclick="hideExpenseForm()">\u041E\u0442\u043C\u0435\u043D\u0430</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.getElementById('expense-form').addEventListener('submit', (e) => handleEditExpense(e, id));
+        }
+
+        async function handleEditExpense(e, id) {
+            e.preventDefault();
+            const data = {
+                categoryId: document.getElementById('category').value,
+                amount: document.getElementById('amount').value,
+                expenseDate: document.getElementById('date').value,
+                description: document.getElementById('description').value || null
+            };
+            const errorEl = document.getElementById('expense-error');
+
+            try {
+                await ExpensesAPI.update(id, data);
+                hideExpenseForm();
+                await loadExpenses();
+            } catch (error) {
+                errorEl.innerHTML = showError(error.message);
+            }
+        }
+
+        async function deleteExpense(id) {
+            if (!confirm('\u0412\u044B \u0443\u0432\u0435\u0440\u0435\u043D\u044B, \u0447\u0442\u043E \u0445\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C \u044D\u0442\u043E\u0442 \u0440\u0430\u0441\u0445\u043E\u0434?')) {
+                return;
+            }
+
+            try {
+                await ExpensesAPI.delete(id);
+                await loadExpenses();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
         render();
     </script>
 </body>
