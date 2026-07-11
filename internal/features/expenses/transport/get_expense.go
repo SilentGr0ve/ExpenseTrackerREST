@@ -10,6 +10,17 @@ import (
 	"github.com/google/uuid"
 )
 
+// GetExpense godoc
+// @Summary Get an expense by ID
+// @Description Returns a single expense by its ID for the authorized user
+// @Tags expenses
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Expense ID"
+// @Success 200 {object} ExpenseResponse "Expense found"
+// @Failure 400 {object} response.ErrorResponse "Invalid expense ID"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /expenses/{id} [get]
 func (h *ExpensesHTTPHandler) GetExpense(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

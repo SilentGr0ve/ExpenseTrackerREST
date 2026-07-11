@@ -9,6 +9,14 @@ import (
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/response"
 )
 
+// DeleteMeUser godoc
+// @Summary Delete current user
+// @Description Delete the authenticated user's account
+// @Tags users
+// @Security BearerAuth
+// @Success 204 "User deleted"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /users/me [delete]
 func (h *AuthHTTPHandler) DeleteMe(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

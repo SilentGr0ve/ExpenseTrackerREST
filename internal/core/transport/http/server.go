@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/SilentGr0ve/ExpenseTrackerREST/docs"
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/config"
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/logger"
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/middleware"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"go.uber.org/zap"
 )
 
@@ -31,6 +33,23 @@ func (s *HTTPServer) RegisterAPIRouters(routers ...*APIVersionRouter) {
 	for _, router := range routers {
 		router.RegisterOn(s.mux)
 	}
+}
+
+func (s *HTTPServer) RegisterSwagger() {
+	s.mux.Handle(
+		"/swagger/",
+		httpSwagger.Handler(
+			httpSwagger.URL("/swagger/doc.json"),
+		),
+	)
+
+	s.mux.HandleFunc(
+		"/swagger/doc.json",
+		func(rw http.ResponseWriter, r *http.Request) {
+			rw.Header().Set("Content-Type", "application/json")
+			rw.WriteHeader(http.StatusOK)
+			_, _ = rw.Write([]byte(docs.SwaggerInfo.ReadDoc()))
+		})
 }
 
 func (s *HTTPServer) Run(ctx context.Context) error {

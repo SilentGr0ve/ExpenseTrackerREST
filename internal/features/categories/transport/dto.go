@@ -8,19 +8,19 @@ import (
 )
 
 type CreateCategoryRequest struct {
-	Name string `json:"name" validate:"required,min=3,max=100"`
+	Name string `json:"name" validate:"required,min=3,max=100" example:"Fastfood"`
 }
 
 type CategoryResponse struct {
-	ID        uuid.UUID  `json:"id"`
-	Version   int        `json:"version"`
-	Name      string     `json:"name"`
+	ID        uuid.UUID  `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Version   int        `json:"version" example:"1"`
+	Name      string     `json:"name" example:"Fastfood"`
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`
 }
 
 type CategoryPatchRequest struct {
-	Name *string `json:"name" validate:"omitempty,min=3,max=100"`
+	Name *string `json:"name" validate:"omitempty,min=3,max=100" example:"John Doe"`
 }
 
 func ToDTOFromDomain(domainCategories []domain.Category) []CategoryResponse {

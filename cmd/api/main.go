@@ -25,7 +25,19 @@ import (
 	statistics_service "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/statistics/service"
 	statistics_transport "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/statistics/transport"
 	"go.uber.org/zap"
+
+	_ "github.com/SilentGr0ve/ExpenseTrackerREST/docs"
 )
+
+// @title 		Expense Tracker API
+// @version 	1.0
+// @description Expense Tracker REST-API scheme
+// @host 		127.0.0.1:8080
+// @basePath 	/api/v1
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter "Bearer <token>
 
 func main() {
 	ctx, cancel := signal.NotifyContext(
@@ -98,6 +110,8 @@ func main() {
 		publicRouterV1,
 		protectedRouterV1,
 	)
+
+	httpServer.RegisterSwagger()
 
 	if err := httpServer.Run(ctx); err != nil {
 		zapLogger.Error("HTTP server run error", zap.Error(err))

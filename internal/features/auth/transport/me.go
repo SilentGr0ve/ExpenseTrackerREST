@@ -9,6 +9,15 @@ import (
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/response"
 )
 
+// GetMeUser godoc
+// @Summary Get current user
+// @Description Returns the authenticated user's profile
+// @Tags users
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} UserResponse "User profile returned"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /users/me [get]
 func (h *AuthHTTPHandler) GetMe(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

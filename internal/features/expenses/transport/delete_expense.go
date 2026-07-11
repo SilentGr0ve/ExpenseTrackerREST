@@ -10,6 +10,17 @@ import (
 	"github.com/google/uuid"
 )
 
+// DeleteExpense godoc
+// @Summary Delete an expense
+// @Description Delete an expense by ID for the authorized user
+// @Tags expenses
+// @Security BearerAuth
+// @Param id path string true "Expense ID"
+// @Success 204 "Expense deleted"
+// @Failure 400 {object} response.ErrorResponse "Invalid expense id"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 404 {object} response.ErrorResponse "Expense not found"
+// @Router /expenses/{id} [delete]
 func (h *ExpensesHTTPHandler) DeleteExpense(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

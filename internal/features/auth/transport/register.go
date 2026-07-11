@@ -11,6 +11,17 @@ import (
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/response"
 )
 
+// RegisterUser godoc
+// @Summary Register a new user
+// @Description Register a new user with email, password and full name.
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body RegisterRequest true "Registration Payload"
+// @Success 201 {object} RegisterResponse "User created successfully"
+// @Failure 400 {object} response.ErrorResponse "Invalid request body"
+// @Failure 409 {object} response.ErrorResponse "Email already exists"
+// @Router /auth/register [post]
 func (h *AuthHTTPHandler) Register(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

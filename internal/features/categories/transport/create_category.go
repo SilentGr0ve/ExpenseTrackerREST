@@ -11,6 +11,19 @@ import (
 	"github.com/SilentGr0ve/ExpenseTrackerREST/internal/core/transport/http/response"
 )
 
+// CreateCategory godoc
+// @Summary Create a new category
+// @Description Create a new category with name for authorized user
+// @Tags categories
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body CreateCategoryRequest true "Info for creating a category"
+// @Success 201 {object} CategoryResponse "Category created successfully"
+// @Failure 400 {object} response.ErrorResponse "Invalid request body"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 409 {object} response.ErrorResponse "Category already exists"
+// @Router /categories [post]
 func (h *CategoriesHTTPHandler) CreateCategory(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

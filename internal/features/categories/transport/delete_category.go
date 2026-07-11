@@ -10,6 +10,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// DeleteCategory godoc
+// @Summary Delete current category
+// @Description Delete the authenticated user's category
+// @Tags categories
+// @Security BearerAuth
+// @Param id path string true "Category ID"
+// @Success 204 "Category deleted successfully"
+// @Failure 400 {object} response.ErrorResponse "Invalid category id"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 404 {object} response.ErrorResponse "Category not found"
+// @Failure 409 {object} response.ErrorResponse "The category is used by expenses"
+// @Router /categories/{id} [delete]
 func (h *CategoriesHTTPHandler) DeleteCategory(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

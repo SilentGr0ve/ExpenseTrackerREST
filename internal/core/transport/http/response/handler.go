@@ -59,24 +59,33 @@ func (h *ResponseHandler) ErrorResponse(err error, message string) {
 		h.log.Warn(message, zap.Error(err))
 	}
 
-	h.JSONResponse(
+	h.errorResponse(
 		statusCode,
-		map[string]string{
-			"error": message,
-		},
+		message,
 	)
 }
 
-func (h *ResponseHandler) PanicResponse(p any, message string) {
+func (h *ResponseHandler) errorResponse(statusCode int, msg string) {
+	response := ErrorResponse{
+		Error: msg,
+	}
+
+	h.JSONResponse(
+		statusCode,
+		response,
+	)
+}
+
+func (h *ResponseHandler) PanicResponse(p any, msg string) {
 	h.log.Error(
-		message,
+		msg,
 		zap.Any("panic", p),
 		zap.Stack("stacktrace"),
 	)
 
-	h.JSONResponse(
+	h.errorResponse(
 		http.StatusInternalServerError,
-		map[string]string{"error": message},
+		msg,
 	)
 }
 
