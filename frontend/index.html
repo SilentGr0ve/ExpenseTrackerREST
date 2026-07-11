@@ -936,6 +936,83 @@
             }
         }
 
+        async function renderStatistics() {
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+            const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+
+            renderContent(`
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">\u0421\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043A\u0430</h2>
+                    </div>
+                    <form id="stats-form" style="margin-bottom: 20px;">
+                        <div style="display: flex; gap: 15px; align-items: end;">
+                            <div class="form-group">
+                                <label for="dateFrom">\u0421 \u0434\u0430\u0442\u044B</label>
+                                <input type="date" id="dateFrom" value="${firstDayOfMonth}">
+                            </div>
+                            <div class="form-group">
+                                <label for="dateTo">\u041F\u043E \u0434\u0430\u0442\u0443</label>
+                                <input type="date" id="dateTo" value="${lastDayOfMonth}">
+                            </div>
+                            <button type="submit" class="btn btn-primary">\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C</button>
+                        </div>
+                    </form>
+                    <div id="stats-content">\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430...</div>
+                </div>
+            `);
+
+            document.getElementById('stats-form').addEventListener('submit', loadStatistics);
+            await loadStatistics({ preventDefault: () => {} });
+        }
+
+        async function loadStatistics(e) {
+            e.preventDefault();
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            const statsEl = document.getElementById('stats-content');
+
+            try {
+                const stats = await StatisticsAPI.get({ dateFrom, dateTo });
+
+                if (!stats || !stats.totalAmount) {
+                    statsEl.innerHTML = '<p>\u041D\u0435\u0442 \u0434\u0430\u043D\u043D\u044B\u0445 \u0437\u0430 \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u044B\u0439 \u043F\u0435\u0440\u0438\u043E\u0434</p>';
+                    return;
+                }
+
+                statsEl.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h3>\u041E\u0431\u0449\u0430\u044F \u0441\u0443\u043C\u043C\u0430: ${formatAmount(stats.totalAmount)}</h3>
+                        <p>\u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E \u0437\u0430\u043F\u0438\u0441\u0435\u0439: ${stats.totalCount || 0}</p>
+                    </div>
+                    ${stats.byCategory && stats.byCategory.length > 0 ? `
+                        <h4 style="margin-bottom: 10px;">\u041F\u043E \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044F\u043C:</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>\u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044F</th>
+                                    <th>\u0421\u0443\u043C\u043C\u0430</th>
+                                    <th>\u0414\u043E\u043B\u044F</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${stats.byCategory.map(cat => `
+                                    <tr>
+                                        <td>${cat.categoryName}</td>
+                                        <td>${formatAmount(cat.amount)}</td>
+                                        <td>${((cat.amount / stats.totalAmount) * 100).toFixed(1)}%</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    ` : ''}
+                `;
+            } catch (error) {
+                statsEl.innerHTML = showError(error.message);
+            }
+        }
+
         render();
     </script>
 </body>
