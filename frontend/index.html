@@ -532,7 +532,7 @@
 
             try {
                 const data = await AuthAPI.login({ email, password });
-                setToken(data.token);
+                setToken(data.access_token);
                 navigate('expenses');
             } catch (error) {
                 errorEl.innerHTML = showError(error.message);
@@ -576,7 +576,7 @@
             const errorEl = document.getElementById('register-error');
 
             try {
-                await AuthAPI.register({ fullName, email, password });
+                await AuthAPI.register({ full_name: fullName, email, password });
                 navigate('login');
             } catch (error) {
                 errorEl.innerHTML = showError(error.message);
