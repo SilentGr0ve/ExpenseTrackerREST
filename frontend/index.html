@@ -1,1097 +1,880 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ExpenseTracker</title>
-    <style>
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f5f5f5;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --border-color: #e0e0e0;
-            --accent-color: #3b82f6;
-            --accent-hover: #2563eb;
-            --danger-color: #ef4444;
-            --danger-hover: #dc2626;
-            --success-color: #22c55e;
-            --card-bg: #ffffff;
-            --input-bg: #ffffff;
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expense Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-        [data-theme="dark"] {
-            --bg-primary: #1a1a1a;
-            --bg-secondary: #2a2a2a;
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0a0;
-            --border-color: #404040;
-            --accent-color: #60a5fa;
-            --accent-hover: #3b82f6;
-            --danger-color: #f87171;
-            --danger-hover: #ef4444;
-            --success-color: #4ade80;
-            --card-bg: #2a2a2a;
-            --input-bg: #333333;
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
+:root{
+  --bg:#ffffff;
+  --surface:#f7f9f8;
+  --surface-raised:#fbfcfc;
+  --ink:#1a2e1c;
+  --muted:#6b7a6d;
+  --primary:#3d8b5e;
+  --primary-hover:#347a50;
+  --primary-light:oklch(0.94 0.04 160);
+  --accent:#c08830;
+  --accent-light:oklch(0.93 0.06 80);
+  --error:#c04040;
+  --error-light:#fdf0f0;
+  --success:#3d8b5e;
+  --border:oklch(0.91 0.008 160);
+  --border-focus:var(--primary);
+  --shadow:0 1px 3px oklch(0 0 0 / 0.06);
+  --shadow-lg:0 4px 16px oklch(0 0 0 / 0.08);
+  --radius:8px;
+  --font:'Inter',system-ui,-apple-system,sans-serif;
+}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#111a12;
+    --surface:#1a261c;
+    --surface-raised:#1f2e22;
+    --ink:#e4ebe5;
+    --muted:#8a9a8c;
+    --primary:#5aad78;
+    --primary-hover:#4a9d68;
+    --primary-light:oklch(0.25 0.06 160);
+    --accent:#d4a040;
+    --accent-light:oklch(0.28 0.06 80);
+    --error:#e06060;
+    --error-light:#2a1515;
+    --border:oklch(0.28 0.015 160);
+    --shadow:0 1px 3px oklch(0 0 0 / 0.3);
+    --shadow-lg:0 4px 16px oklch(0 0 0 / 0.4);
+  }
+}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
+html{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1.5;font-size:16px}
+body{min-height:100dvh;display:flex;flex-direction:column}
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            background-color: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-        }
+button,input,select,textarea{font:inherit;color:inherit}
 
-        .logo {
-            font-size: 20px;
-            font-weight: 600;
-        }
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:0 16px;height:40px;border-radius:var(--radius);border:1px solid transparent;
+  font-weight:500;font-size:0.875rem;cursor:pointer;white-space:nowrap;
+  transition:background 150ms,border-color 150ms,box-shadow 150ms;
+}
+.btn:focus-visible{outline:2px solid var(--border-focus);outline-offset:2px}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn-primary:hover{background:var(--primary-hover)}
+.btn-secondary{background:transparent;color:var(--ink);border-color:var(--border)}
+.btn-secondary:hover{background:var(--surface)}
+.btn-danger{background:transparent;color:var(--error);border-color:var(--border)}
+.btn-danger:hover{background:var(--error-light)}
+.btn-sm{height:32px;padding:0 10px;font-size:0.8125rem}
+.btn-icon{width:36px;padding:0}
+.btn-icon svg{width:18px;height:18px}
 
-        .nav {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
+.input{
+  width:100%;height:40px;padding:0 12px;border:1px solid var(--border);border-radius:var(--radius);
+  background:var(--bg);font-size:0.9375rem;
+  transition:border-color 150ms,box-shadow 150ms;
+}
+.input:focus{outline:none;border-color:var(--border-focus);box-shadow:0 0 0 3px oklch(0.55 0.12 160 / 0.12)}
+.input::placeholder{color:var(--muted)}
 
-        .nav a {
-            text-decoration: none;
-            color: var(--text-primary);
-            padding: 8px 12px;
-            border-radius: 6px;
-            transition: background-color 0.2s;
-        }
+.label{display:block;font-size:0.8125rem;font-weight:500;color:var(--muted);margin-bottom:4px}
+.field{margin-bottom:16px}
 
-        .nav a:hover,
-        .nav a.active {
-            background-color: var(--accent-color);
-            color: white;
-        }
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;box-shadow:var(--shadow);
+}
 
-        .main {
-            padding: 20px;
-            min-height: calc(100vh - 140px);
-        }
+.badge{
+  display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;
+  font-size:0.75rem;font-weight:500;background:var(--accent-light);color:var(--accent);
+}
 
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-secondary);
-            border-top: 1px solid var(--border-color);
-        }
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty svg{width:48px;height:48px;margin-bottom:12px;opacity:0.4}
+.empty p{font-size:0.9375rem}
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
+.toast{
+  position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:var(--radius);
+  font-size:0.875rem;font-weight:500;color:#fff;z-index:1000;
+  animation:toast-in 200ms ease-out;
+}
+.toast-error{background:var(--error)}
+.toast-success{background:var(--success)}
+@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.toast{animation:none}}
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background-color: var(--input-bg);
-            color: var(--text-primary);
-            font-size: 14px;
-        }
+.modal-backdrop{
+  position:fixed;inset:0;background:oklch(0 0 0 / 0.4);z-index:100;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  animation:fade-in 150ms ease-out;
+}
+.modal{
+  background:var(--bg);border:1px solid var(--border);border-radius:12px;
+  padding:24px;width:100%;max-width:440px;box-shadow:var(--shadow-lg);
+  animation:modal-in 200ms ease-out;
+}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+@keyframes modal-in{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.modal-backdrop,.modal{animation:none}}
+.modal h2{font-size:1.125rem;font-weight:600;margin-bottom:16px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
 
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
+.app-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 24px;border-bottom:1px solid var(--border);background:var(--bg);
+  position:sticky;top:0;z-index:50;
+}
+.app-logo{font-weight:700;font-size:1.0625rem;color:var(--primary)}
+.app-nav{display:flex;gap:4px}
+.app-nav button{
+  padding:6px 14px;border-radius:var(--radius);border:none;background:transparent;
+  font-size:0.875rem;font-weight:500;color:var(--muted);cursor:pointer;
+  transition:background 150ms,color 150ms;
+}
+.app-nav button:hover{background:var(--surface);color:var(--ink)}
+.app-nav button.active{background:var(--primary-light);color:var(--primary)}
+.btn-link{background:none;border:none;padding:0;font:inherit;color:var(--ink);cursor:pointer;font-weight:500;font-size:0.875rem}
+.btn-link:hover{text-decoration:underline}
 
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
+.user-menu{display:flex;align-items:center;gap:10px}
 
-        .btn-primary {
-            background-color: var(--accent-color);
-            color: white;
-        }
+.container{max-width:720px;width:100%;margin:0 auto;padding:24px}
+.page-title{font-size:1.5rem;font-weight:700;margin-bottom:24px;text-wrap:balance}
 
-        .btn-primary:hover {
-            background-color: var(--accent-hover);
-        }
+.auth-page{
+  min-height:100dvh;display:flex;align-items:center;justify-content:center;
+  padding:20px;background:var(--surface);
+}
+.auth-card{
+  background:var(--bg);border:1px solid var(--border);border-radius:12px;
+  padding:32px;width:100%;max-width:400px;box-shadow:var(--shadow-lg);
+}
+.auth-card h1{font-size:1.375rem;font-weight:700;text-align:center;margin-bottom:4px}
+.auth-card .subtitle{text-align:center;color:var(--muted);font-size:0.875rem;margin-bottom:24px}
+.auth-card .toggle{text-align:center;margin-top:16px;font-size:0.875rem;color:var(--muted)}
+.auth-card .toggle a{cursor:pointer;font-weight:500}
 
-        .btn-danger {
-            background-color: var(--danger-color);
-            color: white;
-        }
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.stat-card{padding:16px}
+.stat-value{font-size:1.5rem;font-weight:700;line-height:1.2}
+.stat-label{font-size:0.75rem;color:var(--muted);margin-top:2px}
 
-        .btn-danger:hover {
-            background-color: var(--danger-hover);
-        }
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filters .input{flex:1;min-width:120px}
+.filters select{height:40px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);font-size:0.875rem}
 
-        .btn-secondary {
-            background-color: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
+.expense-list{display:flex;flex-direction:column;gap:2px}
+.expense-row{
+  display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;
+  padding:12px 16px;border-radius:var(--radius);
+  transition:background 100ms;
+}
+.expense-row:hover{background:var(--surface)}
+.expense-info{min-width:0}
+.expense-desc{font-weight:500;font-size:0.9375rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.expense-meta{font-size:0.8125rem;color:var(--muted);display:flex;gap:8px;align-items:center;margin-top:2px}
+.expense-amount{font-weight:600;font-size:1rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.expense-actions{display:flex;gap:4px}
 
-        .btn-secondary:hover {
-            background-color: var(--border-color);
-        }
+.category-list{display:flex;flex-direction:column;gap:2px}
+.category-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;border-radius:var(--radius);
+  transition:background 100ms;
+}
+.category-row:hover{background:var(--surface)}
+.category-name{font-weight:500;font-size:0.9375rem}
+.category-actions{display:flex;gap:4px}
 
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-        }
+.stats-breakdown{display:flex;flex-direction:column;gap:8px}
+.stat-bar-row{display:flex;align-items:center;gap:12px}
+.stat-bar-label{width:140px;font-size:0.875rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-bar-track{flex:1;height:8px;background:var(--surface);border-radius:4px;overflow:hidden}
+.stat-bar-fill{height:100%;background:var(--primary);border-radius:4px;transition:width 300ms ease-out}
+@media(prefers-reduced-motion:reduce){.stat-bar-fill{transition:none}}
+.stat-bar-value{width:80px;text-align:right;font-size:0.875rem;font-weight:600;font-variant-numeric:tabular-nums}
+.stat-bar-count{width:50px;text-align:right;font-size:0.75rem;color:var(--muted)}
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+.period-selector{display:flex;gap:8px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.period-btn{
+  padding:6px 12px;border-radius:var(--radius);border:1px solid var(--border);
+  background:transparent;font-size:0.8125rem;font-weight:500;color:var(--muted);cursor:pointer;
+  transition:background 150ms,color 150ms,border-color 150ms;
+}
+.period-btn:hover{border-color:var(--primary);color:var(--ink)}
+.period-btn.active{background:var(--primary-light);color:var(--primary);border-color:var(--primary)}
 
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .table th,
-        .table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .table th {
-            background-color: var(--bg-secondary);
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .table tr:hover {
-            background-color: var(--bg-secondary);
-        }
-
-        .actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .error {
-            color: var(--danger-color);
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
-        .success {
-            color: var(--success-color);
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
-        .theme-toggle {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 20px;
-            padding: 5px;
-        }
-    </style>
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:1fr}
+  .expense-row{grid-template-columns:1fr auto}
+  .expense-actions{display:none}
+  .expense-row:hover .expense-actions{display:flex;position:absolute;right:12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:4px;box-shadow:var(--shadow-lg)}
+  .expense-row{position:relative}
+  .app-nav span{display:none}
+  .filters{flex-direction:column}
+  .period-selector{flex-wrap:wrap}
+  .stat-bar-label{width:100px}
+}
+</style>
 </head>
 <body>
-    <div id="app"></div>
-    <script>
-        const App = {
-            state: {
-                user: null,
-                token: localStorage.getItem('token'),
-                theme: localStorage.getItem('theme') || 'light'
-            },
-            routes: {},
-            currentPage: null
-        };
-
-        function setState(newState) {
-            App.state = { ...App.state, ...newState };
-            render();
-        }
-
-        function navigate(page) {
-            window.location.hash = page;
-        }
-
-        function getRoute() {
-            return window.location.hash.slice(1) || 'login';
-        }
-
-        function registerRoute(name, handler) {
-            App.routes[name] = handler;
-        }
-
-        function router() {
-            const route = getRoute();
-            const protectedRoutes = ['expenses', 'categories', 'statistics', 'profile'];
-
-            if (protectedRoutes.includes(route) && !App.state.token) {
-                navigate('login');
-                return;
-            }
-
-            if (App.routes[route]) {
-                App.currentPage = route;
-                App.routes[route]();
-            }
-        }
-
-        window.addEventListener('hashchange', router);
-        window.addEventListener('load', router);
-
-        function toggleTheme() {
-            const newTheme = App.state.theme === 'light' ? 'dark' : 'light';
-            setState({ theme: newTheme });
-            localStorage.setItem('theme', newTheme);
-            applyTheme();
-        }
-
-        function applyTheme() {
-            document.documentElement.setAttribute('data-theme', App.state.theme);
-            const themeBtn = document.getElementById('theme-toggle');
-            if (themeBtn) {
-                themeBtn.textContent = App.state.theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
-            }
-        }
-
-        applyTheme();
-
-        const API_BASE = '/api/v1';
-
-        function getHeaders() {
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-            if (App.state.token) {
-                headers['Authorization'] = `Bearer ${App.state.token}`;
-            }
-            return headers;
-        }
-
-        function setToken(token) {
-            App.state.token = token;
-            localStorage.setItem('token', token);
-        }
-
-        function clearToken() {
-            App.state.token = null;
-            localStorage.removeItem('token');
-        }
-
-        async function apiRequest(path, options = {}) {
-            const url = `${API_BASE}${path}`;
-            const config = {
-                headers: getHeaders(),
-                ...options
-            };
-
-            try {
-                const response = await fetch(url, config);
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || '\u041E\u0448\u0438\u0431\u043A\u0430 \u0437\u0430\u043F\u0440\u043E\u0441\u0430');
-                }
-
-                return data;
-            } catch (error) {
-                if (error.message === 'Unauthorized') {
-                    clearToken();
-                    navigate('login');
-                }
-                throw error;
-            }
-        }
-
-        const AuthAPI = {
-            register: (data) => apiRequest('/auth/register', {
-                method: 'POST',
-                body: JSON.stringify(data)
-            }),
-
-            login: (data) => apiRequest('/auth/login', {
-                method: 'POST',
-                body: JSON.stringify(data)
-            }),
-
-            getMe: () => apiRequest('/users/me'),
-
-            updateMe: (data) => apiRequest('/users/me', {
-                method: 'PATCH',
-                body: JSON.stringify(data)
-            }),
-
-            deleteMe: () => apiRequest('/users/me', {
-                method: 'DELETE'
-            })
-        };
-
-        const ExpensesAPI = {
-            create: (data) => apiRequest('/expenses', {
-                method: 'POST',
-                body: JSON.stringify(data)
-            }),
-
-            getAll: (params = {}) => {
-                const query = new URLSearchParams(params).toString();
-                return apiRequest(`/expenses${query ? `?${query}` : ''}`);
-            },
-
-            getById: (id) => apiRequest(`/expenses/${id}`),
-
-            update: (id, data) => apiRequest(`/expenses/${id}`, {
-                method: 'PATCH',
-                body: JSON.stringify(data)
-            }),
-
-            delete: (id) => apiRequest(`/expenses/${id}`, {
-                method: 'DELETE'
-            })
-        };
-
-        const CategoriesAPI = {
-            create: (data) => apiRequest('/categories', {
-                method: 'POST',
-                body: JSON.stringify(data)
-            }),
-
-            getAll: () => apiRequest('/categories'),
-
-            update: (id, data) => apiRequest(`/categories/${id}`, {
-                method: 'PATCH',
-                body: JSON.stringify(data)
-            }),
-
-            delete: (id) => apiRequest(`/categories/${id}`, {
-                method: 'DELETE'
-            })
-        };
-
-        const StatisticsAPI = {
-            get: (params = {}) => {
-                const query = new URLSearchParams(params).toString();
-                return apiRequest(`/statistics${query ? `?${query}` : ''}`);
-            }
-        };
-
-        function render() {
-            const app = document.getElementById('app');
-            const route = getRoute();
-            const isAuth = App.state.token;
-
-            app.innerHTML = `
-                <header class="header">
-                    <div class="logo">ExpenseTracker</div>
-                    <nav class="nav">
-                        ${isAuth ? `
-                            <a href="#expenses" class="${route === 'expenses' ? 'active' : ''}">\u0420\u0430\u0441\u0445\u043E\u0434\u044B</a>
-                            <a href="#categories" class="${route === 'categories' ? 'active' : ''}">\u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0438</a>
-                            <a href="#statistics" class="${route === 'statistics' ? 'active' : ''}">\u0421\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043A\u0430</a>
-                            <a href="#profile" class="${route === 'profile' ? 'active' : ''}">\u041F\u0440\u043E\u0444\u0438\u043B\u044C</a>
-                            <button onclick="logout()" class="btn btn-secondary">\u0412\u044B\u0439\u0442\u0438</button>
-                        ` : `
-                            <a href="#login" class="${route === 'login' ? 'active' : ''}">\u0412\u0445\u043E\u0434</a>
-                            <a href="#register" class="${route === 'register' ? 'active' : ''}">\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044F</a>
-                        `}
-                        <button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()">
-                            ${App.state.theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}'}
-                        </button>
-                    </nav>
-                </header>
-                <main class="main container">
-                    <div id="content"></div>
-                </main>
-                <footer class="footer">
-                    <p>ExpenseTracker &copy; 2025</p>
-                </footer>
-            `;
-
-            applyTheme();
-            router();
-        }
-
-        function logout() {
-            clearToken();
-            App.state.user = null;
-            navigate('login');
-        }
-
-        function renderContent(html) {
-            const content = document.getElementById('content');
-            if (content) {
-                content.innerHTML = html;
-            }
-        }
-
-        function showError(message) {
-            return `<div class="error">${message}</div>`;
-        }
-
-        function showSuccess(message) {
-            return `<div class="success">${message}</div>`;
-        }
-
-        function formatDate(dateString) {
-            return new Date(dateString).toLocaleDateString('ru-RU');
-        }
-
-        function formatAmount(amount) {
-            return new Intl.NumberFormat('ru-RU', {
-                style: 'currency',
-                currency: 'RUB'
-            }).format(amount);
-        }
-
-        function renderPlaceholder(page) {
-            renderContent(`
-                <div class="card">
-                    <h2 class="card-title">${page}</h2>
-                    <p>\u0421\u0442\u0440\u0430\u043D\u0438\u0446\u0430 \u0432 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0435</p>
-                </div>
-            `);
-        }
-
-        function renderLogin() {
-            renderContent(`
-                <div class="card" style="max-width: 400px; margin: 40px auto;">
-                    <h2 class="card-title" style="margin-bottom: 20px;">\u0412\u0445\u043E\u0434</h2>
-                    <form id="login-form">
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">\u041F\u0430\u0440\u043E\u043B\u044C</label>
-                            <input type="password" id="password" required>
-                        </div>
-                        <div id="login-error"></div>
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">\u0412\u043E\u0439\u0442\u0438</button>
-                    </form>
-                    <p style="margin-top: 15px; text-align: center;">
-                        \u041D\u0435\u0442 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0430? <a href="#register">\u0417\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u043E\u0432\u0430\u0442\u044C\u0441\u044F</a>
-                    </p>
-                </div>
-            `);
-
-            document.getElementById('login-form').addEventListener('submit', handleLogin);
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorEl = document.getElementById('login-error');
-
-            try {
-                const data = await AuthAPI.login({ email, password });
-                setToken(data.access_token);
-                navigate('expenses');
-            } catch (error) {
-                errorEl.innerHTML = showError(error.message);
-            }
-        }
-
-        function renderRegister() {
-            renderContent(`
-                <div class="card" style="max-width: 400px; margin: 40px auto;">
-                    <h2 class="card-title" style="margin-bottom: 20px;">\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044F</h2>
-                    <form id="register-form">
-                        <div class="form-group">
-                            <label for="fullName">\u0418\u043C\u044F</label>
-                            <input type="text" id="fullName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">\u041F\u0430\u0440\u043E\u043B\u044C</label>
-                            <input type="password" id="password" required minlength="6">
-                        </div>
-                        <div id="register-error"></div>
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">\u0417\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u043E\u0432\u0430\u0442\u044C\u0441\u044F</button>
-                    </form>
-                    <p style="margin-top: 15px; text-align: center;">
-                        \u0423\u0436\u0435 \u0435\u0441\u0442\u044C \u0430\u043A\u043A\u0430\u0443\u043D\u0442? <a href="#login">\u0412\u043E\u0439\u0442\u0438</a>
-                    </p>
-                </div>
-            `);
-
-            document.getElementById('register-form').addEventListener('submit', handleRegister);
-        }
-
-        async function handleRegister(e) {
-            e.preventDefault();
-            const fullName = document.getElementById('fullName').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorEl = document.getElementById('register-error');
-
-            try {
-                await AuthAPI.register({ full_name: fullName, email, password });
-                navigate('login');
-            } catch (error) {
-                errorEl.innerHTML = showError(error.message);
-            }
-        }
-
-        registerRoute('login', renderLogin);
-        registerRoute('register', renderRegister);
-        registerRoute('expenses', renderExpenses);
-        registerRoute('categories', renderCategories);
-        registerRoute('statistics', renderStatistics);
-        registerRoute('profile', renderProfile);
-
-        async function renderExpenses() {
-            renderContent(`
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">\u0420\u0430\u0441\u0445\u043E\u0434\u044B</h2>
-                        <button class="btn btn-primary" onclick="showAddExpenseForm()">\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0440\u0430\u0441\u0445\u043E\u0434</button>
-                    </div>
-                    <div id="expenses-list">\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430...</div>
-                </div>
-                <div id="expense-form-container" style="display: none;"></div>
-            `);
-
-            await loadExpenses();
-        }
-
-        async function loadExpenses() {
-            try {
-                const expenses = await ExpensesAPI.getAll();
-                const listEl = document.getElementById('expenses-list');
-
-                if (expenses.length === 0) {
-                    listEl.innerHTML = '<p>\u041D\u0435\u0442 \u0440\u0430\u0441\u0445\u043E\u0434\u043E\u0432</p>';
-                    return;
-                }
-
-                listEl.innerHTML = `
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>\u0414\u0430\u0442\u0430</th>
-                                <th>\u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044F</th>
-                                <th>\u0421\u0443\u043C\u043C\u0430</th>
-                                <th>\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435</th>
-                                <th>\u0414\u0435\u0439\u0441\u0442\u0432\u0438\u044F</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${expenses.map(expense => `
-                                <tr>
-                                    <td>${formatDate(expense.expenseDate)}</td>
-                                    <td>${expense.categoryName || '-'}</td>
-                                    <td>${formatAmount(expense.amount)}</td>
-                                    <td>${expense.description || '-'}</td>
-                                    <td class="actions">
-                                        <button class="btn btn-secondary" onclick="showEditExpenseForm('${expense.id}')">\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C</button>
-                                        <button class="btn btn-danger" onclick="deleteExpense('${expense.id}')">\u0423\u0434\u0430\u043B\u0438\u0442\u044C</button>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
-            } catch (error) {
-                document.getElementById('expenses-list').innerHTML = showError(error.message);
-            }
-        }
-
-        async function showAddExpenseForm() {
-            const categories = await CategoriesAPI.getAll();
-            const container = document.getElementById('expense-form-container');
-            container.style.display = 'block';
-
-            container.innerHTML = `
-                <div class="card">
-                    <h3 class="card-title">\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0440\u0430\u0441\u0445\u043E\u0434</h3>
-                    <form id="expense-form">
-                        <div class="form-group">
-                            <label for="category">\u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044F</label>
-                            <select id="category" required>
-                                ${categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('')}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="amount">\u0421\u0443\u043C\u043C\u0430</label>
-                            <input type="number" id="amount" step="0.01" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="date">\u0414\u0430\u0442\u0430</label>
-                            <input type="date" id="date" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="description">\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435</label>
-                            <input type="text" id="description">
-                        </div>
-                        <div id="expense-error"></div>
-                        <div class="actions">
-                            <button type="submit" class="btn btn-primary">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button>
-                            <button type="button" class="btn btn-secondary" onclick="hideExpenseForm()">\u041E\u0442\u043C\u0435\u043D\u0430</button>
-                        </div>
-                    </form>
-                </div>
-            `;
-
-            document.getElementById('expense-form').addEventListener('submit', handleAddExpense);
-        }
-
-        async function handleAddExpense(e) {
-            e.preventDefault();
-            const data = {
-                categoryId: document.getElementById('category').value,
-                amount: document.getElementById('amount').value,
-                expenseDate: document.getElementById('date').value,
-                description: document.getElementById('description').value || null
-            };
-            const errorEl = document.getElementById('expense-error');
-
-            try {
-                await ExpensesAPI.create(data);
-                hideExpenseForm();
-                await loadExpenses();
-            } catch (error) {
-                errorEl.innerHTML = showError(error.message);
-            }
-        }
-
-        function hideExpenseForm() {
-            const container = document.getElementById('expense-form-container');
-            container.style.display = 'none';
-            container.innerHTML = '';
-        }
-
-        async function showEditExpenseForm(id) {
-            const [expense, categories] = await Promise.all([
-                ExpensesAPI.getById(id),
-                CategoriesAPI.getAll()
-            ]);
-
-            const container = document.getElementById('expense-form-container');
-            container.style.display = 'block';
-
-            container.innerHTML = `
-                <div class="card">
-                    <h3 class="card-title">\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0440\u0430\u0441\u0445\u043E\u0434</h3>
-                    <form id="expense-form">
-                        <div class="form-group">
-                            <label for="category">\u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044F</label>
-                            <select id="category" required>
-                                ${categories.map(cat => `
-                                    <option value="${cat.id}" ${cat.id === expense.categoryId ? 'selected' : ''}>${cat.name}</option>
-                                `).join('')}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="amount">\u0421\u0443\u043C\u043C\u0430</label>
-                            <input type="number" id="amount" step="0.01" value="${expense.amount}" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="date">\u0414\u0430\u0442\u0430</label>
-                            <input type="date" id="date" value="${expense.expenseDate.split('T')[0]}" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="description">\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435</label>
-                            <input type="text" id="description" value="${expense.description || ''}">
-                        </div>
-                        <div id="expense-error"></div>
-                        <div class="actions">
-                            <button type="submit" class="btn btn-primary">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button>
-                            <button type="button" class="btn btn-secondary" onclick="hideExpenseForm()">\u041E\u0442\u043C\u0435\u043D\u0430</button>
-                        </div>
-                    </form>
-                </div>
-            `;
-
-            document.getElementById('expense-form').addEventListener('submit', (e) => handleEditExpense(e, id));
-        }
-
-        async function handleEditExpense(e, id) {
-            e.preventDefault();
-            const data = {
-                categoryId: document.getElementById('category').value,
-                amount: document.getElementById('amount').value,
-                expenseDate: document.getElementById('date').value,
-                description: document.getElementById('description').value || null
-            };
-            const errorEl = document.getElementById('expense-error');
-
-            try {
-                await ExpensesAPI.update(id, data);
-                hideExpenseForm();
-                await loadExpenses();
-            } catch (error) {
-                errorEl.innerHTML = showError(error.message);
-            }
-        }
-
-        async function deleteExpense(id) {
-            if (!confirm('\u0412\u044B \u0443\u0432\u0435\u0440\u0435\u043D\u044B, \u0447\u0442\u043E \u0445\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C \u044D\u0442\u043E\u0442 \u0440\u0430\u0441\u0445\u043E\u0434?')) {
-                return;
-            }
-
-            try {
-                await ExpensesAPI.delete(id);
-                await loadExpenses();
-            } catch (error) {
-                alert(error.message);
-            }
-        }
-
-        async function renderCategories() {
-            renderContent(`
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">\u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0438</h2>
-                        <button class="btn btn-primary" onclick="showAddCategoryForm()">\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044E</button>
-                    </div>
-                    <div id="categories-list">\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430...</div>
-                </div>
-                <div id="category-form-container" style="display: none;"></div>
-            `);
-
-            await loadCategories();
-        }
-
-        async function loadCategories() {
-            try {
-                const categories = await CategoriesAPI.getAll();
-                const listEl = document.getElementById('categories-list');
-
-                if (categories.length === 0) {
-                    listEl.innerHTML = '<p>\u041D\u0435\u0442 \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0439</p>';
-                    return;
-                }
-
-                listEl.innerHTML = `
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435</th>
-                                <th>\u0421\u043E\u0437\u0434\u0430\u043D\u043E</th>
-                                <th>\u0414\u0435\u0439\u0441\u0442\u0432\u0438\u044F</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${categories.map(category => `
-                                <tr>
-                                    <td>${category.name}</td>
-                                    <td>${formatDate(category.createdAt)}</td>
-                                    <td class="actions">
-                                        <button class="btn btn-secondary" onclick="showEditCategoryForm('${category.id}', '${category.name}')">\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C</button>
-                                        <button class="btn btn-danger" onclick="deleteCategory('${category.id}')">\u0423\u0434\u0430\u043B\u0438\u0442\u044C</button>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
-            } catch (error) {
-                document.getElementById('categories-list').innerHTML = showError(error.message);
-            }
-        }
-
-        function showAddCategoryForm() {
-            const container = document.getElementById('category-form-container');
-            container.style.display = 'block';
-
-            container.innerHTML = `
-                <div class="card">
-                    <h3 class="card-title">\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044E</h3>
-                    <form id="category-form">
-                        <div class="form-group">
-                            <label for="name">\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435</label>
-                            <input type="text" id="name" required>
-                        </div>
-                        <div id="category-error"></div>
-                        <div class="actions">
-                            <button type="submit" class="btn btn-primary">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button>
-                            <button type="button" class="btn btn-secondary" onclick="hideCategoryForm()">\u041E\u0442\u043C\u0435\u043D\u0430</button>
-                        </div>
-                    </form>
-                </div>
-            `;
-
-            document.getElementById('category-form').addEventListener('submit', handleAddCategory);
-        }
-
-        async function handleAddCategory(e) {
-            e.preventDefault();
-            const name = document.getElementById('name').value;
-            const errorEl = document.getElementById('category-error');
-
-            try {
-                await CategoriesAPI.create({ name });
-                hideCategoryForm();
-                await loadCategories();
-            } catch (error) {
-                errorEl.innerHTML = showError(error.message);
-            }
-        }
-
-        function hideCategoryForm() {
-            const container = document.getElementById('category-form-container');
-            container.style.display = 'none';
-            container.innerHTML = '';
-        }
-
-        function showEditCategoryForm(id, currentName) {
-            const container = document.getElementById('category-form-container');
-            container.style.display = 'block';
-
-            container.innerHTML = `
-                <div class="card">
-                    <h3 class="card-title">\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044E</h3>
-                    <form id="category-form">
-                        <div class="form-group">
-                            <label for="name">\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435</label>
-                            <input type="text" id="name" value="${currentName}" required>
-                        </div>
-                        <div id="category-error"></div>
-                        <div class="actions">
-                            <button type="submit" class="btn btn-primary">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button>
-                            <button type="button" class="btn btn-secondary" onclick="hideCategoryForm()">\u041E\u0442\u043C\u0435\u043D\u0430</button>
-                        </div>
-                    </form>
-                </div>
-            `;
-
-            document.getElementById('category-form').addEventListener('submit', (e) => handleEditCategory(e, id));
-        }
-
-        async function handleEditCategory(e, id) {
-            e.preventDefault();
-            const name = document.getElementById('name').value;
-            const errorEl = document.getElementById('category-error');
-
-            try {
-                await CategoriesAPI.update(id, { name });
-                hideCategoryForm();
-                await loadCategories();
-            } catch (error) {
-                errorEl.innerHTML = showError(error.message);
-            }
-        }
-
-        async function deleteCategory(id) {
-            if (!confirm('\u0412\u044B \u0443\u0432\u0435\u0440\u0435\u043D\u044B, \u0447\u0442\u043E \u0445\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C \u044D\u0442\u0443 \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044E?')) {
-                return;
-            }
-
-            try {
-                await CategoriesAPI.delete(id);
-                await loadCategories();
-            } catch (error) {
-                alert(error.message);
-            }
-        }
-
-        async function renderStatistics() {
-            const today = new Date();
-            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
-            const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
-
-            renderContent(`
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">\u0421\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043A\u0430</h2>
-                    </div>
-                    <form id="stats-form" style="margin-bottom: 20px;">
-                        <div style="display: flex; gap: 15px; align-items: end;">
-                            <div class="form-group">
-                                <label for="dateFrom">\u0421 \u0434\u0430\u0442\u044B</label>
-                                <input type="date" id="dateFrom" value="${firstDayOfMonth}">
-                            </div>
-                            <div class="form-group">
-                                <label for="dateTo">\u041F\u043E \u0434\u0430\u0442\u0443</label>
-                                <input type="date" id="dateTo" value="${lastDayOfMonth}">
-                            </div>
-                            <button type="submit" class="btn btn-primary">\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C</button>
-                        </div>
-                    </form>
-                    <div id="stats-content">\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430...</div>
-                </div>
-            `);
-
-            document.getElementById('stats-form').addEventListener('submit', loadStatistics);
-            await loadStatistics({ preventDefault: () => {} });
-        }
-
-        async function loadStatistics(e) {
-            e.preventDefault();
-            const dateFrom = document.getElementById('dateFrom').value;
-            const dateTo = document.getElementById('dateTo').value;
-            const statsEl = document.getElementById('stats-content');
-
-            try {
-                const stats = await StatisticsAPI.get({ dateFrom, dateTo });
-
-                if (!stats || !stats.totalAmount) {
-                    statsEl.innerHTML = '<p>\u041D\u0435\u0442 \u0434\u0430\u043D\u043D\u044B\u0445 \u0437\u0430 \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u044B\u0439 \u043F\u0435\u0440\u0438\u043E\u0434</p>';
-                    return;
-                }
-
-                statsEl.innerHTML = `
-                    <div style="margin-bottom: 20px;">
-                        <h3>\u041E\u0431\u0449\u0430\u044F \u0441\u0443\u043C\u043C\u0430: ${formatAmount(stats.totalAmount)}</h3>
-                        <p>\u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E \u0437\u0430\u043F\u0438\u0441\u0435\u0439: ${stats.totalCount || 0}</p>
-                    </div>
-                    ${stats.byCategory && stats.byCategory.length > 0 ? `
-                        <h4 style="margin-bottom: 10px;">\u041F\u043E \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044F\u043C:</h4>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>\u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044F</th>
-                                    <th>\u0421\u0443\u043C\u043C\u0430</th>
-                                    <th>\u0414\u043E\u043B\u044F</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${stats.byCategory.map(cat => `
-                                    <tr>
-                                        <td>${cat.categoryName}</td>
-                                        <td>${formatAmount(cat.amount)}</td>
-                                        <td>${((cat.amount / stats.totalAmount) * 100).toFixed(1)}%</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    ` : ''}
-                `;
-            } catch (error) {
-                statsEl.innerHTML = showError(error.message);
-            }
-        }
-
-        async function renderProfile() {
-            renderContent(`
-                <div class="card">
-                    <h2 class="card-title" style="margin-bottom: 20px;">\u041F\u0440\u043E\u0444\u0438\u043B\u044C</h2>
-                    <div id="profile-content">\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430...</div>
-                </div>
-            `);
-
-            await loadProfile();
-        }
-
-        async function loadProfile() {
-            try {
-                const user = await AuthAPI.getMe();
-                App.state.user = user;
-
-                document.getElementById('profile-content').innerHTML = `
-                    <form id="profile-form">
-                        <div class="form-group">
-                            <label for="fullName">\u0418\u043C\u044F</label>
-                            <input type="text" id="fullName" value="${user.fullName}" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" value="${user.email}" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">\u041D\u043E\u0432\u044B\u0439 \u043F\u0430\u0440\u043E\u043B\u044C (\u043E\u0441\u0442\u0430\u0432\u044C\u0442\u0435 \u043F\u0443\u0441\u0442\u044B\u043C, \u0435\u0441\u043B\u0438 \u043D\u0435 \u0445\u043E\u0442\u0438\u0442\u0435 \u043C\u0435\u043D\u044F\u0442\u044C)</label>
-                            <input type="password" id="password">
-                        </div>
-                        <div id="profile-message"></div>
-                        <div class="actions">
-                            <button type="submit" class="btn btn-primary">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button>
-                            <button type="button" class="btn btn-danger" onclick="deleteAccount()">\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u0430\u043A\u043A\u0430\u0443\u043D\u0442</button>
-                        </div>
-                    </form>
-                `;
-
-                document.getElementById('profile-form').addEventListener('submit', handleUpdateProfile);
-            } catch (error) {
-                document.getElementById('profile-content').innerHTML = showError(error.message);
-            }
-        }
-
-        async function handleUpdateProfile(e) {
-            e.preventDefault();
-            const data = {
-                fullName: document.getElementById('fullName').value,
-                email: document.getElementById('email').value
-            };
-            const password = document.getElementById('password').value;
-            const messageEl = document.getElementById('profile-message');
-
-            if (password) {
-                data.password = password;
-            }
-
-            try {
-                await AuthAPI.updateMe(data);
-                messageEl.innerHTML = showSuccess('\u041F\u0440\u043E\u0444\u0438\u043B\u044C \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D');
-            } catch (error) {
-                messageEl.innerHTML = showError(error.message);
-            }
-        }
-
-        async function deleteAccount() {
-            if (!confirm('\u0412\u044B \u0443\u0432\u0435\u0440\u0435\u043D\u044B, \u0447\u0442\u043E \u0445\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C \u0430\u043A\u043A\u0430\u0443\u043D\u0442? \u042D\u0442\u043E \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435 \u043D\u0435\u043E\u0431\u0440\u0430\u0442\u0438\u043C\u043E.')) {
-                return;
-            }
-
-            try {
-                await AuthAPI.deleteMe();
-                logout();
-            } catch (error) {
-                alert(error.message);
-            }
-        }
-
-        render();
-    </script>
+
+<script>
+const API = '/api/v1';
+let token = localStorage.getItem('token');
+let currentPage = 'dashboard';
+let categories = [];
+let expenses = [];
+let stats = null;
+let periodFrom = '';
+let periodTo = '';
+let editingExpense = null;
+let editingCategory = null;
+let currentUser = null;
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+function headers() {
+  const h = { 'Content-Type': 'application/json' };
+  if (token) h['Authorization'] = 'Bearer ' + token;
+  return h;
+}
+
+async function api(method, path, body) {
+  const opts = { method, headers: headers() };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+function toast(msg, type = 'error') {
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + type;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+function money(n) {
+  return '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function categoryColor(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  const hue = Math.abs(h) % 360;
+  return `hsl(${hue}, 55%, 45%)`;
+}
+
+function categoryColorLight(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  const hue = Math.abs(h) % 360;
+  return `hsl(${hue}, 40%, 92%)`;
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const date = new Date(d);
+  const now = new Date();
+  const diff = (now - date) / 86400000;
+  if (diff < 1 && date.getDate() === now.getDate()) return 'Today';
+  if (diff < 2 && date.getDate() === now.getDate() - 1) return 'Yesterday';
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+}
+
+function setPeriod(preset) {
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  if (preset === 'week') {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 7);
+    periodFrom = d.toISOString().slice(0, 10);
+  } else if (preset === 'month') {
+    periodFrom = new Date(y, m, 1).toISOString().slice(0, 10);
+  } else if (preset === 'quarter') {
+    periodFrom = new Date(y, m - 3, 1).toISOString().slice(0, 10);
+  } else if (preset === 'year') {
+    periodFrom = new Date(y, 0, 1).toISOString().slice(0, 10);
+  } else if (preset === 'all') {
+    periodFrom = '';
+  }
+  periodTo = now.toISOString().slice(0, 10);
+  loadStats().then(renderStatsBreakdown);
+}
+
+// ── Auth ──
+
+function showAuth(login = true) {
+  currentPage = 'auth';
+  document.body.innerHTML = '';
+  const page = document.createElement('div');
+  page.className = 'auth-page';
+  page.innerHTML = `
+    <div class="auth-card">
+      <h1>${login ? 'Welcome back' : 'Create account'}</h1>
+      <p class="subtitle">${login ? 'Sign in to track your expenses' : 'Start tracking your spending'}</p>
+      <form id="auth-form" novalidate autocomplete="off">
+        ${!login ? '<div class="field"><label class="label">Full name</label><input class="input" name="full_name" autocomplete="off" placeholder="John Doe"></div>' : ''}
+        <div class="field"><label class="label">Email</label><input class="input" name="email" type="email" autocomplete="off" placeholder="you@example.com"></div>
+        <div class="field"><label class="label">Password</label><input class="input" name="password" type="password" autocomplete="off" placeholder="Min 6 characters"></div>
+        <button class="btn btn-primary" type="submit" style="width:100%;height:44px">${login ? 'Sign in' : 'Create account'}</button>
+      </form>
+      <p class="toggle">${login ? 'Don\'t have an account? ' : 'Already have an account? '}<a id="auth-toggle">${login ? 'Sign up' : 'Sign in'}</a></p>
+    </div>`;
+  document.body.appendChild(page);
+
+  $('#auth-toggle').onclick = () => showAuth(!login);
+  $('#auth-form').onsubmit = async e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const body = Object.fromEntries(fd);
+    try {
+      if (login) {
+        const res = await api('POST', '/auth/login', body);
+        token = res.access_token;
+        localStorage.setItem('token', token);
+      } else {
+        await api('POST', '/auth/register', body);
+        const res = await api('POST', '/auth/login', { email: body.email, password: body.password });
+        token = res.access_token;
+        localStorage.setItem('token', token);
+      }
+      showApp();
+    } catch (err) {
+      toast(err.message);
+    }
+  };
+}
+
+// ── App Shell ──
+
+function showApp() {
+  currentPage = 'dashboard';
+  document.body.innerHTML = `
+    <header class="app-header">
+      <div class="app-logo">ExpenseTracker</div>
+      <nav class="app-nav">
+        <button data-page="dashboard" class="active"><span>Dashboard</span></button>
+        <button data-page="expenses"><span>Expenses</span></button>
+        <button data-page="categories"><span>Categories</span></button>
+        <button data-page="stats"><span>Statistics</span></button>
+      </nav>
+      <div class="user-menu">
+        <button class="user-name btn-link" id="profile-btn"></button>
+        <button class="btn btn-sm btn-secondary" id="logout-btn">Log out</button>
+      </div>
+    </header>
+    <main class="container" id="main"></main>`;
+
+  $$('.app-nav button').forEach(btn => {
+    btn.onclick = () => {
+      currentPage = btn.dataset.page;
+      $$('.app-nav button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    };
+  });
+
+  $('#logout-btn').onclick = () => {
+    token = null;
+    localStorage.removeItem('token');
+    showAuth();
+  };
+
+  $('#profile-btn').onclick = () => {
+    currentPage = 'profile';
+    $$('.app-nav button').forEach(b => b.classList.remove('active'));
+    render();
+  };
+
+  loadUser();
+  loadCategories().then(() => render());
+}
+
+async function loadUser() {
+  try {
+    const user = await api('GET', '/users/me');
+    currentUser = user;
+    $('#profile-btn').textContent = user.full_name || user.email;
+  } catch { showAuth(); }
+}
+
+async function loadCategories() {
+  try { categories = await api('GET', '/categories'); } catch { categories = []; }
+}
+
+async function loadExpenses(params = {}) {
+  const q = new URLSearchParams();
+  if (params.category_id) q.set('category_id', params.category_id);
+  if (params.date_from) q.set('date_from', params.date_from);
+  if (params.date_to) q.set('date_to', params.date_to);
+  if (params.limit) q.set('limit', params.limit);
+  if (params.offset) q.set('offset', params.offset);
+  try { expenses = await api('GET', '/expenses' + (q.toString() ? '?' + q : '')); } catch { expenses = []; }
+}
+
+async function loadStats() {
+  const q = new URLSearchParams();
+  if (periodFrom) q.set('date_from', periodFrom);
+  if (periodTo) q.set('date_to', periodTo);
+  try { stats = await api('GET', '/statistics' + (q.toString() ? '?' + q : '')); } catch { stats = null; }
+}
+
+// ── Dashboard ──
+
+async function renderDashboard() {
+  const main = $('#main');
+  main.innerHTML = '<div style="display:flex;justify-content:center;padding:40px"><div class="spinner"></div></div>';
+  await loadExpenses({ limit: 50 });
+  renderDashboardFull();
+}
+
+function renderDashboardFull() {
+  const main = $('#main');
+  main.innerHTML = `
+    <h1 class="page-title">Dashboard</h1>
+    <div id="recent-list"></div>`;
+  renderRecent();
+}
+
+function renderRecent() {
+  const el = $('#recent-list');
+  if (!el) return;
+  if (expenses.length === 0) {
+    el.innerHTML = '<div class="empty"><p>No expenses yet. Add your first one!</p></div>';
+    return;
+  }
+  el.innerHTML = '<div class="expense-list">' + expenses.map(e => expenseRow(e)).join('') + '</div>';
+}
+
+function expenseRow(e) {
+  const cat = categories.find(c => c.id === e.category_id);
+  const catName = cat?.name || '';
+  return `
+    <div class="expense-row" data-id="${e.id}">
+      <div class="expense-info">
+        <div class="expense-desc">${esc(e.description || catName || 'Expense')}</div>
+        <div class="expense-meta">
+          <span>${formatDate(e.expense_date || e.created_at)}</span>
+          ${cat ? '<span class="badge" style="background:' + categoryColorLight(catName) + ';color:' + categoryColor(catName) + '">' + esc(catName) + '</span>' : ''}
+        </div>
+      </div>
+      <div class="expense-amount">${money(e.amount)}</div>
+      <div class="expense-actions">
+        <button class="btn btn-icon btn-secondary btn-sm" onclick="editExpense('${e.id}')" title="Edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn btn-icon btn-danger btn-sm" onclick="deleteExpense('${e.id}')" title="Delete">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Expenses Page ──
+
+async function renderExpenses() {
+  const main = $('#main');
+  main.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <h1 class="page-title" style="margin-bottom:0">Expenses</h1>
+      <button class="btn btn-primary" onclick="showExpenseModal()">+ New expense</button>
+    </div>
+    <div class="filters" id="expense-filters">
+      <select class="input" id="filter-category" style="flex:0 0 160px;height:40px">
+        <option value="">All categories</option>
+        ${categories.map(c => '<option value="' + c.id + '">' + esc(c.name) + '</option>').join('')}
+      </select>
+      <input class="input" type="date" id="filter-from">
+      <input class="input" type="date" id="filter-to">
+      <button class="btn btn-secondary btn-sm" onclick="applyExpenseFilters()">Filter</button>
+    </div>
+    <div id="expense-list-container"><div style="display:flex;justify-content:center;padding:40px"><div class="spinner"></div></div></div>`;
+
+  await loadExpenses();
+  renderExpenseList();
+}
+
+function renderExpenseList() {
+  const el = $('#expense-list-container');
+  if (!el) return;
+  if (expenses.length === 0) {
+    el.innerHTML = '<div class="empty"><p>No expenses found.</p></div>';
+    return;
+  }
+  el.innerHTML = '<div class="expense-list">' + expenses.map(e => expenseRow(e)).join('') + '</div>';
+}
+
+function applyExpenseFilters() {
+  const cat = $('#filter-category').value;
+  const from = $('#filter-from').value;
+  const to = $('#filter-to').value;
+  loadExpenses({ category_id: cat || undefined, date_from: from || undefined, date_to: to || undefined }).then(renderExpenseList);
+}
+
+function showExpenseModal(expense = null) {
+  editingExpense = expense;
+  const isEdit = !!expense;
+  const existing = expense || {};
+  const today = new Date().toISOString().slice(0, 10);
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal">
+      <h2>${isEdit ? 'Edit expense' : 'New expense'}</h2>
+      <form id="expense-form">
+        <div class="field">
+          <label class="label">Category</label>
+          <select class="input" name="category_id" required>
+            <option value="">Select category</option>
+            ${categories.map(c => '<option value="' + c.id + '"' + (existing.category_id === c.id ? ' selected' : '') + '>' + esc(c.name) + '</option>').join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Amount</label>
+          <input class="input" name="amount" type="number" step="0.01" min="0.01" required value="${existing.amount || ''}" placeholder="0.00">
+        </div>
+        <div class="field">
+          <label class="label">Description</label>
+          <input class="input" name="description" value="${esc(existing.description || '')}" placeholder="What was this for?">
+        </div>
+        <div class="field">
+          <label class="label">Date</label>
+          <input class="input" name="expense_date" type="date" value="${existing.expense_date || today}">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">${isEdit ? 'Save' : 'Add expense'}</button>
+        </div>
+      </form>
+    </div>`;
+  document.body.appendChild(backdrop);
+  backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+
+  $('#expense-form').onsubmit = async e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const body = {
+      category_id: fd.get('category_id'),
+      amount: fd.get('amount'),
+      description: fd.get('description') || null,
+      expense_date: fd.get('expense_date') || null,
+    };
+    try {
+      if (isEdit) {
+        await api('PATCH', '/expenses/' + existing.id, body);
+      } else {
+        await api('POST', '/expenses', body);
+      }
+      closeModal();
+      toast(isEdit ? 'Expense updated' : 'Expense added', 'success');
+      refreshCurrentPage();
+    } catch (err) { toast(err.message); }
+  };
+}
+
+async function editExpense(id) {
+  const expense = expenses.find(e => e.id === id);
+  if (!expense) return;
+  showExpenseModal(expense);
+}
+
+async function deleteExpense(id) {
+  if (!confirm('Delete this expense?')) return;
+  try {
+    await api('DELETE', '/expenses/' + id);
+    toast('Expense deleted', 'success');
+    refreshCurrentPage();
+  } catch (err) { toast(err.message); }
+}
+
+// ── Categories Page ──
+
+function renderCategories() {
+  const main = $('#main');
+  main.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <h1 class="page-title" style="margin-bottom:0">Categories</h1>
+      <button class="btn btn-primary" onclick="showCategoryModal()">+ New category</button>
+    </div>
+    <div id="category-list-container"></div>`;
+  renderCategoryList();
+}
+
+function renderCategoryList() {
+  const el = $('#category-list-container');
+  if (!el) return;
+  if (categories.length === 0) {
+    el.innerHTML = '<div class="empty"><p>No categories yet. Create one to organize your expenses.</p></div>';
+    return;
+  }
+  el.innerHTML = '<div class="category-list">' + categories.map(c => `
+    <div class="category-row">
+      <span class="category-name">${esc(c.name)}</span>
+      <div class="category-actions">
+        <button class="btn btn-icon btn-secondary btn-sm" onclick="showCategoryModal(categories.find(x=>x.id==='${c.id}'))" title="Edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn btn-icon btn-danger btn-sm" onclick="deleteCategory('${c.id}')" title="Delete">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </div>
+    </div>`).join('') + '</div>';
+}
+
+function showCategoryModal(cat = null) {
+  editingCategory = cat;
+  const isEdit = !!cat;
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal">
+      <h2>${isEdit ? 'Edit category' : 'New category'}</h2>
+      <form id="category-form">
+        <div class="field">
+          <label class="label">Name</label>
+          <input class="input" name="name" required minlength="3" maxlength="100" value="${esc(cat?.name || '')}" placeholder="e.g. Groceries, Transport">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">${isEdit ? 'Save' : 'Create'}</button>
+        </div>
+      </form>
+    </div>`;
+  document.body.appendChild(backdrop);
+  backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+
+  $('#category-form').onsubmit = async e => {
+    e.preventDefault();
+    const name = new FormData(e.target).get('name');
+    try {
+      if (isEdit) {
+        await api('PATCH', '/categories/' + cat.id, { name });
+      } else {
+        await api('POST', '/categories', { name });
+      }
+      closeModal();
+      await loadCategories();
+      toast(isEdit ? 'Category updated' : 'Category created', 'success');
+      refreshCurrentPage();
+    } catch (err) { toast(err.message); }
+  };
+}
+
+async function deleteCategory(id) {
+  const cat = categories.find(c => c.id === id);
+  if (confirm('Delete "' + (cat?.name || 'this category') + '"?')) {
+    try {
+      await api('DELETE', '/categories/' + id);
+      await loadCategories();
+      toast('Category deleted', 'success');
+      refreshCurrentPage();
+    } catch (err) { toast(err.message); }
+  }
+}
+
+// ── Stats Page ──
+
+async function renderStatsPage() {
+  const main = $('#main');
+  const presets = [
+    { key: 'week', label: 'This week' },
+    { key: 'month', label: 'This month' },
+    { key: 'quarter', label: '3 months' },
+    { key: 'year', label: 'This year' },
+    { key: 'all', label: 'All time' },
+  ];
+
+  main.innerHTML = `
+    <h1 class="page-title">Statistics</h1>
+    <div class="period-selector">
+      ${presets.map(p => '<button class="period-btn' + (p.key === 'month' ? ' active' : '') + '" data-period="' + p.key + '">' + p.label + '</button>').join('')}
+      <input class="input" type="date" id="stat-from" value="${periodFrom}" style="flex:0 0 140px">
+      <span style="color:var(--muted);font-size:0.8125rem">to</span>
+      <input class="input" type="date" id="stat-to" value="${periodTo}" style="flex:0 0 140px">
+      <button class="btn btn-secondary btn-sm" onclick="applyCustomPeriod()">Apply</button>
+    </div>
+    <div class="stats-grid">
+      <div class="card stat-card"><div class="stat-value" id="stat-total">-</div><div class="stat-label">Total spent</div></div>
+      <div class="card stat-card"><div class="stat-value" id="stat-count">-</div><div class="stat-label">Expenses</div></div>
+      <div class="card stat-card"><div class="stat-value" id="stat-avg">-</div><div class="stat-label">Average</div></div>
+    </div>
+    <div id="stats-breakdown-container"></div>`;
+
+  $$('.period-btn').forEach(btn => {
+    btn.onclick = () => {
+      $$('.period-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      setPeriod(btn.dataset.period);
+      $('#stat-from').value = periodFrom;
+      $('#stat-to').value = periodTo;
+    };
+  });
+
+  setPeriod('month');
+  $('#stat-from').value = periodFrom;
+  $('#stat-to').value = periodTo;
+}
+
+function applyCustomPeriod() {
+  periodFrom = $('#stat-from').value;
+  periodTo = $('#stat-to').value;
+  $$('.period-btn').forEach(b => b.classList.remove('active'));
+  loadStats().then(() => {
+    if (stats) {
+      $('#stat-total').textContent = money(stats.summary.total_amount);
+      $('#stat-count').textContent = stats.summary.total_expenses;
+      $('#stat-avg').textContent = money(stats.summary.average_amount);
+    }
+    renderStatsBreakdown();
+  });
+}
+
+function renderStatsBreakdown() {
+  const el = $('#stats-breakdown-container');
+  if (!el) return;
+  if (stats) {
+    $('#stat-total').textContent = money(stats.summary.total_amount);
+    $('#stat-count').textContent = stats.summary.total_expenses;
+    $('#stat-avg').textContent = money(stats.summary.average_amount);
+  }
+  if (!stats || !stats.by_category || stats.by_category.length === 0) {
+    el.innerHTML = '<div class="empty"><p>No data for this period.</p></div>';
+    return;
+  }
+  const max = Math.max(...stats.by_category.map(c => Number(c.total_amount)));
+  el.innerHTML = `
+    <div class="card">
+      <h3 style="font-size:0.9375rem;font-weight:600;margin-bottom:16px">Breakdown by category</h3>
+      <div class="stats-breakdown">
+        ${stats.by_category.map(c => `
+          <div class="stat-bar-row">
+            <div class="stat-bar-label" title="${c.category_name}">${c.category_name}</div>
+            <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${max ? (Number(c.total_amount) / max * 100) : 0}%;background:${categoryColor(c.category_name)}"></div></div>
+            <div class="stat-bar-value">${money(c.total_amount)}</div>
+            <div class="stat-bar-count">${c.expenses_count}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── Profile Page ──
+
+function renderProfile() {
+  const main = $('#main');
+  const u = currentUser || {};
+  main.innerHTML = `
+    <h1 class="page-title">Profile</h1>
+    <div class="card" style="max-width:480px">
+      <form id="profile-form" novalidate autocomplete="off">
+        <div class="field">
+          <label class="label">Full name</label>
+          <input class="input" name="full_name" value="${esc(u.full_name || '')}" autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="label">Email</label>
+          <input class="input" name="email" type="email" value="${esc(u.email || '')}" autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="label">New password <span style="color:var(--muted);font-weight:400">(leave empty to keep current)</span></label>
+          <input class="input" name="password" type="password" autocomplete="new-password" placeholder="Min 6 characters">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:20px">
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+    <div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border);max-width:480px">
+      <h2 style="font-size:1rem;font-weight:600;color:var(--error);margin-bottom:8px">Danger zone</h2>
+      <p style="font-size:0.875rem;color:var(--muted);margin-bottom:12px">Permanently delete your account and all associated data. This action cannot be undone.</p>
+      <button class="btn btn-danger" id="delete-account-btn">Delete account</button>
+    </div>`;
+
+  $('#profile-form').onsubmit = async e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const body = {};
+    const fullName = fd.get('full_name');
+    const email = fd.get('email');
+    const password = fd.get('password');
+    if (fullName) body.full_name = fullName;
+    if (email) body.email = email;
+    if (password) body.password = password;
+    try {
+      await api('PATCH', '/users/me', body);
+      toast('Profile updated', 'success');
+      await loadUser();
+    } catch (err) { toast(err.message); }
+  };
+
+  $('#delete-account-btn').onclick = async () => {
+    if (!confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
+    if (!confirm('Final confirmation: delete all your data permanently?')) return;
+    try {
+      await api('DELETE', '/users/me');
+      token = null;
+      localStorage.removeItem('token');
+      toast('Account deleted', 'success');
+      showAuth();
+    } catch (err) { toast(err.message); }
+  };
+}
+
+// ── Router ──
+
+function render() {
+  if (currentPage === 'dashboard') renderDashboard();
+  else if (currentPage === 'expenses') renderExpenses();
+  else if (currentPage === 'categories') renderCategories();
+  else if (currentPage === 'stats') renderStatsPage();
+  else if (currentPage === 'profile') renderProfile();
+}
+
+function refreshCurrentPage() {
+  loadCategories().then(() => {
+    if (currentPage === 'dashboard') renderDashboard();
+    else if (currentPage === 'expenses') { loadExpenses().then(renderExpenseList); }
+    else if (currentPage === 'categories') renderCategoryList();
+    else if (currentPage === 'stats') renderStatsPage();
+    else if (currentPage === 'profile') renderProfile();
+  });
+}
+
+function closeModal() {
+  const m = $('.modal-backdrop');
+  if (m) m.remove();
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+// ── Init ──
+if (token) {
+  api('GET', '/users/me').then(() => showApp()).catch(() => showAuth());
+} else {
+  showAuth();
+}
+</script>
 </body>
 </html>

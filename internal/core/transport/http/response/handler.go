@@ -92,3 +92,12 @@ func (h *ResponseHandler) PanicResponse(p any, msg string) {
 func (h *ResponseHandler) NoContent() {
 	h.WriteHeader(http.StatusNoContent)
 }
+
+func (h *ResponseHandler) HTMLResponse(html []byte) {
+	h.ResponseWriter.WriteHeader(http.StatusOK)
+
+	h.ResponseWriter.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if _, err := h.ResponseWriter.Write(html); err != nil {
+		h.log.Error("write HTML response", zap.Error(err))
+	}
+}
