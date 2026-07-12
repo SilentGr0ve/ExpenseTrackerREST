@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expense Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#ffffff;
+  --surface:#f7f9f8;
+  --surface-raised:#fbfcfc;
+  --ink:#1a2e1c;
+  --muted:#6b7a6d;
+  --primary:#3d8b5e;
+  --primary-hover:#347a50;
+  --primary-light:oklch(0.94 0.04 160);
+  --accent:#c08830;
+  --accent-light:oklch(0.93 0.06 80);
+  --error:#c04040;
+  --error-light:#fdf0f0;
+  --success:#3d8b5e;
+  --border:oklch(0.91 0.008 160);
+  --border-focus:var(--primary);
+  --shadow:0 1px 3px oklch(0 0 0 / 0.06);
+  --shadow-lg:0 4px 16px oklch(0 0 0 / 0.08);
+  --radius:8px;
+  --font:'Inter',system-ui,-apple-system,sans-serif;
+}
+
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#111a12;
+    --surface:#1a261c;
+    --surface-raised:#1f2e22;
+    --ink:#e4ebe5;
+    --muted:#8a9a8c;
+    --primary:#5aad78;
+    --primary-hover:#4a9d68;
+    --primary-light:oklch(0.25 0.06 160);
+    --accent:#d4a040;
+    --accent-light:oklch(0.28 0.06 80);
+    --error:#e06060;
+    --error-light:#2a1515;
+    --border:oklch(0.28 0.015 160);
+    --shadow:0 1px 3px oklch(0 0 0 / 0.3);
+    --shadow-lg:0 4px 16px oklch(0 0 0 / 0.4);
+  }
+}
+
+html{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1.5;font-size:16px}
+body{min-height:100dvh;display:flex;flex-direction:column}
+
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+
+button,input,select,textarea{font:inherit;color:inherit}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:0 16px;height:40px;border-radius:var(--radius);border:1px solid transparent;
+  font-weight:500;font-size:0.875rem;cursor:pointer;white-space:nowrap;
+  transition:background 150ms,border-color 150ms,box-shadow 150ms;
+}
+.btn:focus-visible{outline:2px solid var(--border-focus);outline-offset:2px}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn-primary:hover{background:var(--primary-hover)}
+.btn-secondary{background:transparent;color:var(--ink);border-color:var(--border)}
+.btn-secondary:hover{background:var(--surface)}
+.btn-danger{background:transparent;color:var(--error);border-color:var(--border)}
+.btn-danger:hover{background:var(--error-light)}
+.btn-sm{height:32px;padding:0 10px;font-size:0.8125rem}
+.btn-icon{width:36px;padding:0}
+.btn-icon svg{width:18px;height:18px}
+
+.input{
+  width:100%;height:40px;padding:0 12px;border:1px solid var(--border);border-radius:var(--radius);
+  background:var(--bg);font-size:0.9375rem;
+  transition:border-color 150ms,box-shadow 150ms;
+}
+.input:focus{outline:none;border-color:var(--border-focus);box-shadow:0 0 0 3px oklch(0.55 0.12 160 / 0.12)}
+.input::placeholder{color:var(--muted)}
+
+.label{display:block;font-size:0.8125rem;font-weight:500;color:var(--muted);margin-bottom:4px}
+.field{margin-bottom:16px}
+
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;box-shadow:var(--shadow);
+}
+
+.badge{
+  display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;
+  font-size:0.75rem;font-weight:500;background:var(--accent-light);color:var(--accent);
+}
+
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty svg{width:48px;height:48px;margin-bottom:12px;opacity:0.4}
+.empty p{font-size:0.9375rem}
+
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.toast{
+  position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:var(--radius);
+  font-size:0.875rem;font-weight:500;color:#fff;z-index:1000;
+  animation:toast-in 200ms ease-out;
+}
+.toast-error{background:var(--error)}
+.toast-success{background:var(--success)}
+@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.toast{animation:none}}
+
+.modal-backdrop{
+  position:fixed;inset:0;background:oklch(0 0 0 / 0.4);z-index:100;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  animation:fade-in 150ms ease-out;
+}
+.modal{
+  background:var(--bg);border:1px solid var(--border);border-radius:12px;
+  padding:24px;width:100%;max-width:440px;box-shadow:var(--shadow-lg);
+  animation:modal-in 200ms ease-out;
+}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+@keyframes modal-in{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.modal-backdrop,.modal{animation:none}}
+.modal h2{font-size:1.125rem;font-weight:600;margin-bottom:16px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+
+.app-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 24px;border-bottom:1px solid var(--border);background:var(--bg);
+  position:sticky;top:0;z-index:50;
+}
+.app-logo{font-weight:700;font-size:1.0625rem;color:var(--primary)}
+.app-nav{display:flex;gap:4px}
+.app-nav button{
+  padding:6px 14px;border-radius:var(--radius);border:none;background:transparent;
+  font-size:0.875rem;font-weight:500;color:var(--muted);cursor:pointer;
+  transition:background 150ms,color 150ms;
+}
+.app-nav button:hover{background:var(--surface);color:var(--ink)}
+.app-nav button.active{background:var(--primary-light);color:var(--primary)}
+.btn-link{background:none;border:none;padding:0;font:inherit;color:var(--ink);cursor:pointer;font-weight:500;font-size:0.875rem}
+.btn-link:hover{text-decoration:underline}
+
+.user-menu{display:flex;align-items:center;gap:10px}
+
+.container{max-width:720px;width:100%;margin:0 auto;padding:24px}
+.page-title{font-size:1.5rem;font-weight:700;margin-bottom:24px;text-wrap:balance}
+
+.auth-page{
+  min-height:100dvh;display:flex;align-items:center;justify-content:center;
+  padding:20px;background:var(--surface);
+}
+.auth-card{
+  background:var(--bg);border:1px solid var(--border);border-radius:12px;
+  padding:32px;width:100%;max-width:400px;box-shadow:var(--shadow-lg);
+}
+.auth-card h1{font-size:1.375rem;font-weight:700;text-align:center;margin-bottom:4px}
+.auth-card .subtitle{text-align:center;color:var(--muted);font-size:0.875rem;margin-bottom:24px}
+.auth-card .toggle{text-align:center;margin-top:16px;font-size:0.875rem;color:var(--muted)}
+.auth-card .toggle a{cursor:pointer;font-weight:500}
+
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.stat-card{padding:16px}
+.stat-value{font-size:1.5rem;font-weight:700;line-height:1.2}
+.stat-label{font-size:0.75rem;color:var(--muted);margin-top:2px}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filters .input{flex:1;min-width:120px}
+.filters select{height:40px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);font-size:0.875rem}
+
+.expense-list{display:flex;flex-direction:column;gap:2px}
+.expense-row{
+  display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;
+  padding:12px 16px;border-radius:var(--radius);
+  transition:background 100ms;
+}
+.expense-row:hover{background:var(--surface)}
+.expense-info{min-width:0}
+.expense-desc{font-weight:500;font-size:0.9375rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.expense-meta{font-size:0.8125rem;color:var(--muted);display:flex;gap:8px;align-items:center;margin-top:2px}
+.expense-amount{font-weight:600;font-size:1rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.expense-actions{display:flex;gap:4px}
+
+.category-list{display:flex;flex-direction:column;gap:2px}
+.category-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;border-radius:var(--radius);
+  transition:background 100ms;
+}
+.category-row:hover{background:var(--surface)}
+.category-name{font-weight:500;font-size:0.9375rem}
+.category-actions{display:flex;gap:4px}
+
+.stats-breakdown{display:flex;flex-direction:column;gap:8px}
+.stat-bar-row{display:flex;align-items:center;gap:12px}
+.stat-bar-label{width:140px;font-size:0.875rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-bar-track{flex:1;height:8px;background:var(--surface);border-radius:4px;overflow:hidden}
+.stat-bar-fill{height:100%;background:var(--primary);border-radius:4px;transition:width 300ms ease-out}
+@media(prefers-reduced-motion:reduce){.stat-bar-fill{transition:none}}
+.stat-bar-value{width:80px;text-align:right;font-size:0.875rem;font-weight:600;font-variant-numeric:tabular-nums}
+.stat-bar-count{width:50px;text-align:right;font-size:0.75rem;color:var(--muted)}
+
+.period-selector{display:flex;gap:8px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.period-btn{
+  padding:6px 12px;border-radius:var(--radius);border:1px solid var(--border);
+  background:transparent;font-size:0.8125rem;font-weight:500;color:var(--muted);cursor:pointer;
+  transition:background 150ms,color 150ms,border-color 150ms;
+}
+.period-btn:hover{border-color:var(--primary);color:var(--ink)}
+.period-btn.active{background:var(--primary-light);color:var(--primary);border-color:var(--primary)}
+
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:1fr}
+  .expense-row{grid-template-columns:1fr auto}
+  .expense-actions{display:none}
+  .expense-row:hover .expense-actions{display:flex;position:absolute;right:12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:4px;box-shadow:var(--shadow-lg)}
+  .expense-row{position:relative}
+  .app-nav span{display:none}
+  .filters{flex-direction:column}
+  .period-selector{flex-wrap:wrap}
+  .stat-bar-label{width:100px}
+}
+</style>
+</head>
+<body>
+
+<script>
+const API = '/api/v1';
+let token = localStorage.getItem('token');
+let currentPage = 'dashboard';
+let categories = [];
+let expenses = [];
+let stats = null;
+let periodFrom = '';
+let periodTo = '';
+let editingExpense = null;
+let editingCategory = null;
+let currentUser = null;
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+function headers() {
+  const h = { 'Content-Type': 'application/json' };
+  if (token) h['Authorization'] = 'Bearer ' + token;
+  return h;
+}
+
+async function api(method, path, body) {
+  const opts = { method, headers: headers() };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+function toast(msg, type = 'error') {
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + type;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+function money(n) {
+  return '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function categoryColor(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  const hue = Math.abs(h) % 360;
+  return `hsl(${hue}, 55%, 45%)`;
+}
+
+function categoryColorLight(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  const hue = Math.abs(h) % 360;
+  return `hsl(${hue}, 40%, 92%)`;
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const date = new Date(d);
+  const now = new Date();
+  const diff = (now - date) / 86400000;
+  if (diff < 1 && date.getDate() === now.getDate()) return 'Today';
+  if (diff < 2 && date.getDate() === now.getDate() - 1) return 'Yesterday';
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+}
+
+function setPeriod(preset) {
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  if (preset === 'week') {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 7);
+    periodFrom = d.toISOString().slice(0, 10);
+  } else if (preset === 'month') {
+    periodFrom = new Date(y, m, 1).toISOString().slice(0, 10);
+  } else if (preset === 'quarter') {
+    periodFrom = new Date(y, m - 3, 1).toISOString().slice(0, 10);
+  } else if (preset === 'year') {
+    periodFrom = new Date(y, 0, 1).toISOString().slice(0, 10);
+  } else if (preset === 'all') {
+    periodFrom = '';
+  }
+  periodTo = now.toISOString().slice(0, 10);
+  loadStats().then(renderStatsBreakdown);
+}
+
+// ── Auth ──
+
+function showAuth(login = true) {
+  currentPage = 'auth';
+  document.body.innerHTML = '';
+  const page = document.createElement('div');
+  page.className = 'auth-page';
+  page.innerHTML = `
+    <div class="auth-card">
+      <h1>${login ? 'Welcome back' : 'Create account'}</h1>
+      <p class="subtitle">${login ? 'Sign in to track your expenses' : 'Start tracking your spending'}</p>
+      <form id="auth-form" novalidate autocomplete="off">
+        ${!login ? '<div class="field"><label class="label">Full name</label><input class="input" name="full_name" autocomplete="off" placeholder="John Doe"></div>' : ''}
+        <div class="field"><label class="label">Email</label><input class="input" name="email" type="email" autocomplete="off" placeholder="you@example.com"></div>
+        <div class="field"><label class="label">Password</label><input class="input" name="password" type="password" autocomplete="off" placeholder="Min 6 characters"></div>
+        <button class="btn btn-primary" type="submit" style="width:100%;height:44px">${login ? 'Sign in' : 'Create account'}</button>
+      </form>
+      <p class="toggle">${login ? 'Don\'t have an account? ' : 'Already have an account? '}<a id="auth-toggle">${login ? 'Sign up' : 'Sign in'}</a></p>
+    </div>`;
+  document.body.appendChild(page);
+
+  $('#auth-toggle').onclick = () => showAuth(!login);
+  $('#auth-form').onsubmit = async e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const body = Object.fromEntries(fd);
+    try {
+      if (login) {
+        const res = await api('POST', '/auth/login', body);
+        token = res.access_token;
+        localStorage.setItem('token', token);
+      } else {
+        await api('POST', '/auth/register', body);
+        const res = await api('POST', '/auth/login', { email: body.email, password: body.password });
+        token = res.access_token;
+        localStorage.setItem('token', token);
+      }
+      showApp();
+    } catch (err) {
+      toast(err.message);
+    }
+  };
+}
+
+// ── App Shell ──
+
+function showApp() {
+  currentPage = 'dashboard';
+  document.body.innerHTML = `
+    <header class="app-header">
+      <div class="app-logo">ExpenseTracker</div>
+      <nav class="app-nav">
+        <button data-page="dashboard" class="active"><span>Dashboard</span></button>
+        <button data-page="expenses"><span>Expenses</span></button>
+        <button data-page="categories"><span>Categories</span></button>
+        <button data-page="stats"><span>Statistics</span></button>
+      </nav>
+      <div class="user-menu">
+        <button class="user-name btn-link" id="profile-btn"></button>
+        <button class="btn btn-sm btn-secondary" id="logout-btn">Log out</button>
+      </div>
+    </header>
+    <main class="container" id="main"></main>`;
+
+  $$('.app-nav button').forEach(btn => {
+    btn.onclick = () => {
+      currentPage = btn.dataset.page;
+      $$('.app-nav button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    };
+  });
+
+  $('#logout-btn').onclick = () => {
+    token = null;
+    localStorage.removeItem('token');
+    showAuth();
+  };
+
+  $('#profile-btn').onclick = () => {
+    currentPage = 'profile';
+    $$('.app-nav button').forEach(b => b.classList.remove('active'));
+    render();
+  };
+
+  loadUser();
+  loadCategories().then(() => render());
+}
+
+async function loadUser() {
+  try {
+    const user = await api('GET', '/users/me');
+    currentUser = user;
+    $('#profile-btn').textContent = user.full_name || user.email;
+  } catch { showAuth(); }
+}
+
+async function loadCategories() {
+  try { categories = await api('GET', '/categories'); } catch { categories = []; }
+}
+
+async function loadExpenses(params = {}) {
+  const q = new URLSearchParams();
+  if (params.category_id) q.set('category_id', params.category_id);
+  if (params.date_from) q.set('date_from', params.date_from);
+  if (params.date_to) q.set('date_to', params.date_to);
+  if (params.limit) q.set('limit', params.limit);
+  if (params.offset) q.set('offset', params.offset);
+  try { expenses = await api('GET', '/expenses' + (q.toString() ? '?' + q : '')); } catch { expenses = []; }
+}
+
+async function loadStats() {
+  const q = new URLSearchParams();
+  if (periodFrom) q.set('date_from', periodFrom);
+  if (periodTo) q.set('date_to', periodTo);
+  try { stats = await api('GET', '/statistics' + (q.toString() ? '?' + q : '')); } catch { stats = null; }
+}
+
+// ── Dashboard ──
+
+async function renderDashboard() {
+  const main = $('#main');
+  main.innerHTML = '<div style="display:flex;justify-content:center;padding:40px"><div class="spinner"></div></div>';
+  await loadExpenses({ limit: 50 });
+  renderDashboardFull();
+}
+
+function renderDashboardFull() {
+  const main = $('#main');
+  main.innerHTML = `
+    <h1 class="page-title">Dashboard</h1>
+    <div id="recent-list"></div>`;
+  renderRecent();
+}
+
+function renderRecent() {
+  const el = $('#recent-list');
+  if (!el) return;
+  if (expenses.length === 0) {
+    el.innerHTML = '<div class="empty"><p>No expenses yet. Add your first one!</p></div>';
+    return;
+  }
+  el.innerHTML = '<div class="expense-list">' + expenses.map(e => expenseRow(e)).join('') + '</div>';
+}
+
+function expenseRow(e) {
+  const cat = categories.find(c => c.id === e.category_id);
+  const catName = cat?.name || '';
+  return `
+    <div class="expense-row" data-id="${e.id}">
+      <div class="expense-info">
+        <div class="expense-desc">${esc(e.description || catName || 'Expense')}</div>
+        <div class="expense-meta">
+          <span>${formatDate(e.expense_date || e.created_at)}</span>
+          ${cat ? '<span class="badge" style="background:' + categoryColorLight(catName) + ';color:' + categoryColor(catName) + '">' + esc(catName) + '</span>' : ''}
+        </div>
+      </div>
+      <div class="expense-amount">${money(e.amount)}</div>
+      <div class="expense-actions">
+        <button class="btn btn-icon btn-secondary btn-sm" onclick="editExpense('${e.id}')" title="Edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn btn-icon btn-danger btn-sm" onclick="deleteExpense('${e.id}')" title="Delete">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Expenses Page ──
+
+async function renderExpenses() {
+  const main = $('#main');
+  main.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <h1 class="page-title" style="margin-bottom:0">Expenses</h1>
+      <button class="btn btn-primary" onclick="showExpenseModal()">+ New expense</button>
+    </div>
+    <div class="filters" id="expense-filters">
+      <select class="input" id="filter-category" style="flex:0 0 160px;height:40px">
+        <option value="">All categories</option>
+        ${categories.map(c => '<option value="' + c.id + '">' + esc(c.name) + '</option>').join('')}
+      </select>
+      <input class="input" type="date" id="filter-from">
+      <input class="input" type="date" id="filter-to">
+      <button class="btn btn-secondary btn-sm" onclick="applyExpenseFilters()">Filter</button>
+    </div>
+    <div id="expense-list-container"><div style="display:flex;justify-content:center;padding:40px"><div class="spinner"></div></div></div>`;
+
+  await loadExpenses();
+  renderExpenseList();
+}
+
+function renderExpenseList() {
+  const el = $('#expense-list-container');
+  if (!el) return;
+  if (expenses.length === 0) {
+    el.innerHTML = '<div class="empty"><p>No expenses found.</p></div>';
+    return;
+  }
+  el.innerHTML = '<div class="expense-list">' + expenses.map(e => expenseRow(e)).join('') + '</div>';
+}
+
+function applyExpenseFilters() {
+  const cat = $('#filter-category').value;
+  const from = $('#filter-from').value;
+  const to = $('#filter-to').value;
+  loadExpenses({ category_id: cat || undefined, date_from: from || undefined, date_to: to || undefined }).then(renderExpenseList);
+}
+
+function showExpenseModal(expense = null) {
+  editingExpense = expense;
+  const isEdit = !!expense;
+  const existing = expense || {};
+  const today = new Date().toISOString().slice(0, 10);
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal">
+      <h2>${isEdit ? 'Edit expense' : 'New expense'}</h2>
+      <form id="expense-form">
+        <div class="field">
+          <label class="label">Category</label>
+          <select class="input" name="category_id" required>
+            <option value="">Select category</option>
+            ${categories.map(c => '<option value="' + c.id + '"' + (existing.category_id === c.id ? ' selected' : '') + '>' + esc(c.name) + '</option>').join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Amount</label>
+          <input class="input" name="amount" type="number" step="0.01" min="0.01" required value="${existing.amount || ''}" placeholder="0.00">
+        </div>
+        <div class="field">
+          <label class="label">Description</label>
+          <input class="input" name="description" value="${esc(existing.description || '')}" placeholder="What was this for?">
+        </div>
+        <div class="field">
+          <label class="label">Date</label>
+          <input class="input" name="expense_date" type="date" value="${existing.expense_date || today}">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">${isEdit ? 'Save' : 'Add expense'}</button>
+        </div>
+      </form>
+    </div>`;
+  document.body.appendChild(backdrop);
+  backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+
+  $('#expense-form').onsubmit = async e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const body = {
+      category_id: fd.get('category_id'),
+      amount: fd.get('amount'),
+      description: fd.get('description') || null,
+      expense_date: fd.get('expense_date') || null,
+    };
+    try {
+      if (isEdit) {
+        await api('PATCH', '/expenses/' + existing.id, body);
+      } else {
+        await api('POST', '/expenses', body);
+      }
+      closeModal();
+      toast(isEdit ? 'Expense updated' : 'Expense added', 'success');
+      refreshCurrentPage();
+    } catch (err) { toast(err.message); }
+  };
+}
+
+async function editExpense(id) {
+  const expense = expenses.find(e => e.id === id);
+  if (!expense) return;
+  showExpenseModal(expense);
+}
+
+async function deleteExpense(id) {
+  if (!confirm('Delete this expense?')) return;
+  try {
+    await api('DELETE', '/expenses/' + id);
+    toast('Expense deleted', 'success');
+    refreshCurrentPage();
+  } catch (err) { toast(err.message); }
+}
+
+// ── Categories Page ──
+
+function renderCategories() {
+  const main = $('#main');
+  main.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <h1 class="page-title" style="margin-bottom:0">Categories</h1>
+      <button class="btn btn-primary" onclick="showCategoryModal()">+ New category</button>
+    </div>
+    <div id="category-list-container"></div>`;
+  renderCategoryList();
+}
+
+function renderCategoryList() {
+  const el = $('#category-list-container');
+  if (!el) return;
+  if (categories.length === 0) {
+    el.innerHTML = '<div class="empty"><p>No categories yet. Create one to organize your expenses.</p></div>';
+    return;
+  }
+  el.innerHTML = '<div class="category-list">' + categories.map(c => `
+    <div class="category-row">
+      <span class="category-name">${esc(c.name)}</span>
+      <div class="category-actions">
+        <button class="btn btn-icon btn-secondary btn-sm" onclick="showCategoryModal(categories.find(x=>x.id==='${c.id}'))" title="Edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn btn-icon btn-danger btn-sm" onclick="deleteCategory('${c.id}')" title="Delete">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </div>
+    </div>`).join('') + '</div>';
+}
+
+function showCategoryModal(cat = null) {
+  editingCategory = cat;
+  const isEdit = !!cat;
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal">
+      <h2>${isEdit ? 'Edit category' : 'New category'}</h2>
+      <form id="category-form">
+        <div class="field">
+          <label class="label">Name</label>
+          <input class="input" name="name" required minlength="3" maxlength="100" value="${esc(cat?.name || '')}" placeholder="e.g. Groceries, Transport">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">${isEdit ? 'Save' : 'Create'}</button>
+        </div>
+      </form>
+    </div>`;
+  document.body.appendChild(backdrop);
+  backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+
+  $('#category-form').onsubmit = async e => {
+    e.preventDefault();
+    const name = new FormData(e.target).get('name');
+    try {
+      if (isEdit) {
+        await api('PATCH', '/categories/' + cat.id, { name });
+      } else {
+        await api('POST', '/categories', { name });
+      }
+      closeModal();
+      await loadCategories();
+      toast(isEdit ? 'Category updated' : 'Category created', 'success');
+      refreshCurrentPage();
+    } catch (err) { toast(err.message); }
+  };
+}
+
+async function deleteCategory(id) {
+  const cat = categories.find(c => c.id === id);
+  if (confirm('Delete "' + (cat?.name || 'this category') + '"?')) {
+    try {
+      await api('DELETE', '/categories/' + id);
+      await loadCategories();
+      toast('Category deleted', 'success');
+      refreshCurrentPage();
+    } catch (err) { toast(err.message); }
+  }
+}
+
+// ── Stats Page ──
+
+async function renderStatsPage() {
+  const main = $('#main');
+  const presets = [
+    { key: 'week', label: 'This week' },
+    { key: 'month', label: 'This month' },
+    { key: 'quarter', label: '3 months' },
+    { key: 'year', label: 'This year' },
+    { key: 'all', label: 'All time' },
+  ];
+
+  main.innerHTML = `
+    <h1 class="page-title">Statistics</h1>
+    <div class="period-selector">
+      ${presets.map(p => '<button class="period-btn' + (p.key === 'month' ? ' active' : '') + '" data-period="' + p.key + '">' + p.label + '</button>').join('')}
+      <input class="input" type="date" id="stat-from" value="${periodFrom}" style="flex:0 0 140px">
+      <span style="color:var(--muted);font-size:0.8125rem">to</span>
+      <input class="input" type="date" id="stat-to" value="${periodTo}" style="flex:0 0 140px">
+      <button class="btn btn-secondary btn-sm" onclick="applyCustomPeriod()">Apply</button>
+    </div>
+    <div class="stats-grid">
+      <div class="card stat-card"><div class="stat-value" id="stat-total">-</div><div class="stat-label">Total spent</div></div>
+      <div class="card stat-card"><div class="stat-value" id="stat-count">-</div><div class="stat-label">Expenses</div></div>
+      <div class="card stat-card"><div class="stat-value" id="stat-avg">-</div><div class="stat-label">Average</div></div>
+    </div>
+    <div id="stats-breakdown-container"></div>`;
+
+  $$('.period-btn').forEach(btn => {
+    btn.onclick = () => {
+      $$('.period-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      setPeriod(btn.dataset.period);
+      $('#stat-from').value = periodFrom;
+      $('#stat-to').value = periodTo;
+    };
+  });
+
+  setPeriod('month');
+  $('#stat-from').value = periodFrom;
+  $('#stat-to').value = periodTo;
+}
+
+function applyCustomPeriod() {
+  periodFrom = $('#stat-from').value;
+  periodTo = $('#stat-to').value;
+  $$('.period-btn').forEach(b => b.classList.remove('active'));
+  loadStats().then(() => {
+    if (stats) {
+      $('#stat-total').textContent = money(stats.summary.total_amount);
+      $('#stat-count').textContent = stats.summary.total_expenses;
+      $('#stat-avg').textContent = money(stats.summary.average_amount);
+    }
+    renderStatsBreakdown();
+  });
+}
+
+function renderStatsBreakdown() {
+  const el = $('#stats-breakdown-container');
+  if (!el) return;
+  if (stats) {
+    $('#stat-total').textContent = money(stats.summary.total_amount);
+    $('#stat-count').textContent = stats.summary.total_expenses;
+    $('#stat-avg').textContent = money(stats.summary.average_amount);
+  }
+  if (!stats || !stats.by_category || stats.by_category.length === 0) {
+    el.innerHTML = '<div class="empty"><p>No data for this period.</p></div>';
+    return;
+  }
+  const max = Math.max(...stats.by_category.map(c => Number(c.total_amount)));
+  el.innerHTML = `
+    <div class="card">
+      <h3 style="font-size:0.9375rem;font-weight:600;margin-bottom:16px">Breakdown by category</h3>
+      <div class="stats-breakdown">
+        ${stats.by_category.map(c => `
+          <div class="stat-bar-row">
+            <div class="stat-bar-label" title="${c.category_name}">${c.category_name}</div>
+            <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${max ? (Number(c.total_amount) / max * 100) : 0}%;background:${categoryColor(c.category_name)}"></div></div>
+            <div class="stat-bar-value">${money(c.total_amount)}</div>
+            <div class="stat-bar-count">${c.expenses_count}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── Profile Page ──
+
+function renderProfile() {
+  const main = $('#main');
+  const u = currentUser || {};
+  main.innerHTML = `
+    <h1 class="page-title">Profile</h1>
+    <div class="card" style="max-width:480px">
+      <form id="profile-form" novalidate autocomplete="off">
+        <div class="field">
+          <label class="label">Full name</label>
+          <input class="input" name="full_name" value="${esc(u.full_name || '')}" autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="label">Email</label>
+          <input class="input" name="email" type="email" value="${esc(u.email || '')}" autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="label">New password <span style="color:var(--muted);font-weight:400">(leave empty to keep current)</span></label>
+          <input class="input" name="password" type="password" autocomplete="new-password" placeholder="Min 6 characters">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:20px">
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+    <div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border);max-width:480px">
+      <h2 style="font-size:1rem;font-weight:600;color:var(--error);margin-bottom:8px">Danger zone</h2>
+      <p style="font-size:0.875rem;color:var(--muted);margin-bottom:12px">Permanently delete your account and all associated data. This action cannot be undone.</p>
+      <button class="btn btn-danger" id="delete-account-btn">Delete account</button>
+    </div>`;
+
+  $('#profile-form').onsubmit = async e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const body = {};
+    const fullName = fd.get('full_name');
+    const email = fd.get('email');
+    const password = fd.get('password');
+    if (fullName) body.full_name = fullName;
+    if (email) body.email = email;
+    if (password) body.password = password;
+    try {
+      await api('PATCH', '/users/me', body);
+      toast('Profile updated', 'success');
+      await loadUser();
+    } catch (err) { toast(err.message); }
+  };
+
+  $('#delete-account-btn').onclick = async () => {
+    if (!confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
+    if (!confirm('Final confirmation: delete all your data permanently?')) return;
+    try {
+      await api('DELETE', '/users/me');
+      token = null;
+      localStorage.removeItem('token');
+      toast('Account deleted', 'success');
+      showAuth();
+    } catch (err) { toast(err.message); }
+  };
+}
+
+// ── Router ──
+
+function render() {
+  if (currentPage === 'dashboard') renderDashboard();
+  else if (currentPage === 'expenses') renderExpenses();
+  else if (currentPage === 'categories') renderCategories();
+  else if (currentPage === 'stats') renderStatsPage();
+  else if (currentPage === 'profile') renderProfile();
+}
+
+function refreshCurrentPage() {
+  loadCategories().then(() => {
+    if (currentPage === 'dashboard') renderDashboard();
+    else if (currentPage === 'expenses') { loadExpenses().then(renderExpenseList); }
+    else if (currentPage === 'categories') renderCategoryList();
+    else if (currentPage === 'stats') renderStatsPage();
+    else if (currentPage === 'profile') renderProfile();
+  });
+}
+
+function closeModal() {
+  const m = $('.modal-backdrop');
+  if (m) m.remove();
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+// ── Init ──
+if (token) {
+  api('GET', '/users/me').then(() => showApp()).catch(() => showAuth());
+} else {
+  showAuth();
+}
+</script>
+</body>
+</html>

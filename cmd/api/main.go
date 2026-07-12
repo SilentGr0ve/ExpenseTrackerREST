@@ -24,6 +24,9 @@ import (
 	statistics_repository "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/statistics/repository"
 	statistics_service "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/statistics/service"
 	statistics_transport "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/statistics/transport"
+	web_repository "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/web/repository"
+	web_service "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/web/service"
+	web_transport "github.com/SilentGr0ve/ExpenseTrackerREST/internal/features/web/transport"
 	"go.uber.org/zap"
 
 	_ "github.com/SilentGr0ve/ExpenseTrackerREST/docs"
@@ -82,6 +85,10 @@ func main() {
 	statisticsService := statistics_service.NewStatisticsService(statisticsRepo)
 	statisticsHandler := statistics_transport.NewStatisticsHTTPHandler(statisticsService)
 
+	webRepo := web_repository.NewWebRepository()
+	webService := web_service.NewWebService(webRepo)
+	webHandler := web_transport.NewWebHTTPHandler(webService)
+
 	httpServer := httpserver.NewHTTPServer(
 		appConfig.Server,
 		zapLogger,
@@ -112,6 +119,7 @@ func main() {
 	)
 
 	httpServer.RegisterSwagger()
+	httpServer.RegisterWeb(webHandler.Routes()...)
 
 	if err := httpServer.Run(ctx); err != nil {
 		zapLogger.Error("HTTP server run error", zap.Error(err))
