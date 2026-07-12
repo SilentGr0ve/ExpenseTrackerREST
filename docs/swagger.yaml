@@ -1,0 +1,719 @@
+basePath: /api/v1
+definitions:
+  github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse:
+    properties:
+      error:
+        example: human-readable error
+        type: string
+    type: object
+  internal_features_auth_transport.LoginRequest:
+    properties:
+      email:
+        example: johndoel@mail.com
+        maxLength: 255
+        minLength: 8
+        type: string
+      password:
+        example: johndoepassword
+        maxLength: 255
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  internal_features_auth_transport.LoginResponse:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzI1NiIs...
+        type: string
+    type: object
+  internal_features_auth_transport.RegisterRequest:
+    properties:
+      email:
+        example: johndoel@mail.com
+        maxLength: 255
+        minLength: 8
+        type: string
+      full_name:
+        example: John Doe
+        maxLength: 100
+        minLength: 3
+        type: string
+      password:
+        example: johndoepassword
+        maxLength: 255
+        minLength: 6
+        type: string
+    required:
+    - email
+    - full_name
+    - password
+    type: object
+  internal_features_auth_transport.RegisterResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        example: johndoel@mail.com
+        type: string
+      full_name:
+        example: John Doe
+        type: string
+    type: object
+  internal_features_auth_transport.UpdateUserRequest:
+    properties:
+      email:
+        example: johndoe@mail.com
+        type: string
+      full_name:
+        example: John Doe
+        maxLength: 100
+        minLength: 3
+        type: string
+      password:
+        example: johndoepassword
+        maxLength: 255
+        minLength: 6
+        type: string
+    type: object
+  internal_features_auth_transport.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        example: johndoe@mail.com
+        type: string
+      full_name:
+        example: John Doe
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      updated_at:
+        type: string
+      version:
+        example: 1
+        type: integer
+    type: object
+  internal_features_categories_transport.CategoryPatchRequest:
+    properties:
+      name:
+        example: John Doe
+        maxLength: 100
+        minLength: 3
+        type: string
+    type: object
+  internal_features_categories_transport.CategoryResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      name:
+        example: Fastfood
+        type: string
+      updated_at:
+        type: string
+      version:
+        example: 1
+        type: integer
+    type: object
+  internal_features_categories_transport.CreateCategoryRequest:
+    properties:
+      name:
+        example: Fastfood
+        maxLength: 100
+        minLength: 3
+        type: string
+    required:
+    - name
+    type: object
+  internal_features_expenses_transport.CreateExpenseRequest:
+    properties:
+      amount:
+        example: 599.5
+        type: number
+      category_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      description:
+        example: Description for a new expense
+        type: string
+      expense_date:
+        example: "2026-12-31"
+        type: string
+    required:
+    - amount
+    - category_id
+    type: object
+  internal_features_expenses_transport.ExpensePatchRequest:
+    properties:
+      amount:
+        example: "599.50"
+        type: string
+      category_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      description:
+        example: Patched description for an expense
+        type: string
+      expense_date:
+        example: "2026-12-31"
+        type: string
+    type: object
+  internal_features_expenses_transport.ExpenseResponse:
+    properties:
+      amount:
+        example: 599.5
+        type: number
+      category_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      created_at:
+        type: string
+      description:
+        example: Description for an expense
+        type: string
+      expense_date:
+        example: "2026-12-31"
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      version:
+        example: 1
+        type: integer
+    type: object
+  internal_features_statistics_transport.CategorySummaryResponse:
+    properties:
+      category_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      category_name:
+        example: Fastfood
+        type: string
+      expenses_count:
+        example: 1
+        type: integer
+      total_amount:
+        example: 999.99
+        type: number
+    type: object
+  internal_features_statistics_transport.PeriodResponse:
+    properties:
+      date_from:
+        example: "2026-01-01"
+        type: string
+      date_to:
+        example: "2026-12-31"
+        type: string
+    type: object
+  internal_features_statistics_transport.StatisticsResponse:
+    properties:
+      by_category:
+        items:
+          $ref: '#/definitions/internal_features_statistics_transport.CategorySummaryResponse'
+        type: array
+      period:
+        $ref: '#/definitions/internal_features_statistics_transport.PeriodResponse'
+      summary:
+        $ref: '#/definitions/internal_features_statistics_transport.SummaryResponse'
+    type: object
+  internal_features_statistics_transport.SummaryResponse:
+    properties:
+      average_amount:
+        example: 999.99
+        type: number
+      total_amount:
+        example: 9999.99
+        type: number
+      total_expenses:
+        example: 10
+        type: integer
+    type: object
+host: 127.0.0.1:8080
+info:
+  contact: {}
+  description: Expense Tracker REST-API scheme
+  title: Expense Tracker API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate with email and password
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_auth_transport.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Access token returned
+          schema:
+            $ref: '#/definitions/internal_features_auth_transport.LoginResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      summary: Login user
+      tags:
+      - users
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with email, password and full name.
+      parameters:
+      - description: Registration Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_auth_transport.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            $ref: '#/definitions/internal_features_auth_transport.RegisterResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "409":
+          description: Email already exists
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - users
+  /categories:
+    get:
+      description: Get authorized user's categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User categories returned
+          schema:
+            items:
+              $ref: '#/definitions/internal_features_categories_transport.CategoryResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Create a new category with name for authorized user
+      parameters:
+      - description: Info for creating a category
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_categories_transport.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Category created successfully
+          schema:
+            $ref: '#/definitions/internal_features_categories_transport.CategoryResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "409":
+          description: Category already exists
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new category
+      tags:
+      - categories
+  /categories/{id}:
+    delete:
+      description: Delete the authenticated user's category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: Category deleted successfully
+        "400":
+          description: Invalid category id
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "404":
+          description: Category not found
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "409":
+          description: The category is used by expenses
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete current category
+      tags:
+      - categories
+    patch:
+      consumes:
+      - application/json
+      description: Update the category name for the authorized user
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Partial category field to update
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_categories_transport.CategoryPatchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Category successfully updated
+          schema:
+            $ref: '#/definitions/internal_features_categories_transport.CategoryResponse'
+        "400":
+          description: Invalid request body or id
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "404":
+          description: Category not found
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user category
+      tags:
+      - categories
+  /expenses:
+    get:
+      description: Return a list of expenses for the authorized user with optional
+        filters
+      parameters:
+      - description: Filter by category UUID
+        in: query
+        name: category_id
+        type: string
+      - description: Filter by start date (YYYY-MM-DD)
+        in: query
+        name: date_from
+        type: string
+      - description: Filter by end date (YYYY-MM-DD)
+        in: query
+        name: date_to
+        type: string
+      - description: Limit number of results
+        in: query
+        name: limit
+        type: integer
+      - description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Expense list returned
+          schema:
+            items:
+              $ref: '#/definitions/internal_features_expenses_transport.ExpenseResponse'
+            type: array
+        "400":
+          description: Invalid query parameter
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user expenses
+      tags:
+      - expenses
+    post:
+      consumes:
+      - application/json
+      description: Create a new expense for the authorized user
+      parameters:
+      - description: Expense payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_expenses_transport.CreateExpenseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Expense created successfully
+          schema:
+            $ref: '#/definitions/internal_features_expenses_transport.ExpenseResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new expense
+      tags:
+      - expenses
+  /expenses/{id}:
+    delete:
+      description: Delete an expense by ID for the authorized user
+      parameters:
+      - description: Expense ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: Expense deleted
+        "400":
+          description: Invalid expense id
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "404":
+          description: Expense not found
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete an expense
+      tags:
+      - expenses
+    get:
+      description: Returns a single expense by its ID for the authorized user
+      parameters:
+      - description: Expense ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Expense found
+          schema:
+            $ref: '#/definitions/internal_features_expenses_transport.ExpenseResponse'
+        "400":
+          description: Invalid expense ID
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get an expense by ID
+      tags:
+      - expenses
+    patch:
+      consumes:
+      - application/json
+      description: Partially update an expense for the authorized user
+      parameters:
+      - description: Expense ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Partial expense fields to update
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_expenses_transport.ExpensePatchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Expense updated
+          schema:
+            $ref: '#/definitions/internal_features_expenses_transport.ExpenseResponse'
+        "400":
+          description: Invalid request body or ID
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "404":
+          description: Expense not found
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update an expense
+      tags:
+      - expenses
+  /statistics:
+    get:
+      description: Returns aggregated expense statistics for the authorized user,
+        optionally filtered by date range
+      parameters:
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: date_from
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: date_to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Statistics returned
+          schema:
+            $ref: '#/definitions/internal_features_statistics_transport.StatisticsResponse'
+        "400":
+          description: Invalid query parameter
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get expense statistics
+      tags:
+      - statistics
+  /users/me:
+    delete:
+      description: Delete the authenticated user's account
+      responses:
+        "204":
+          description: User deleted
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete current user
+      tags:
+      - users
+    get:
+      description: Returns the authenticated user's profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User profile returned
+          schema:
+            $ref: '#/definitions/internal_features_auth_transport.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - users
+    patch:
+      consumes:
+      - application/json
+      description: Update the authenticated user's profile
+      parameters:
+      - description: Partial user fields to update
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_auth_transport.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated user returned
+          schema:
+            $ref: '#/definitions/internal_features_auth_transport.UserResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_SilentGr0ve_ExpenseTrackerREST_internal_core_transport_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update current user
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    description: Enter "Bearer <token>
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
